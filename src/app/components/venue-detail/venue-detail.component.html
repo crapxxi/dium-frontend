@@ -34,13 +34,8 @@
                [class.opacity-50]="!product.inStock">
             
             <div class="relative h-52 overflow-hidden bg-gray-50">
-              <img [src]="'http://localhost:8080' + product.imageUrl" 
+              <img [src]="product.imageUrl" 
                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
-              
-              <div *ngIf="product.hasModifiers && product.inStock" 
-                   class="absolute top-4 right-4 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-orange-100">
-                <span class="text-[9px] font-black uppercase text-orange-600 tracking-tighter">Настраиваемый</span>
-              </div>
   
               <div *ngIf="!product.inStock" class="absolute inset-0 bg-white/60 backdrop-blur-[2px] flex items-center justify-center">
                 <span class="bg-gray-900 text-white text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest">Нет в наличии</span>
@@ -57,8 +52,8 @@
                 <button *ngIf="product.hasModifiers"
                         (click)="handleProductClick(product)"
                         [disabled]="!product.inStock"
-                        class="flex-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-200 text-white font-black py-3 rounded-2xl shadow-lg shadow-orange-200 uppercase text-[10px] tracking-widest transition-all active:scale-95">
-                  Настроить
+                        class="flex-1 bg-gray-900 hover:bg-black disabled:bg-gray-200 text-white font-black py-3 rounded-2xl shadow-lg shadow-gray-200 uppercase text-[10px] tracking-widest transition-all active:scale-95">
+                  В корзину
                 </button>
 
                 <button *ngIf="!product.hasModifiers && !simpleCartQuantities[product.id]"
@@ -130,6 +125,28 @@
                   <span class="font-black text-orange-600 italic text-xs">+{{ mod.priceDelta }} ₸</span>
                 </button>
               </div>
+              <div *ngIf="filteredProducts.length === 0 && !isLoading" 
+     class="flex flex-col items-center justify-center py-20 px-4 text-center animate-in fade-in slide-in-from-bottom-4 duration-700">
+  
+  <div class="w-24 h-24 bg-orange-100 rounded-[32px] flex items-center justify-center mb-6 rotate-3 shadow-lg shadow-orange-900/5">
+    <svg class="w-12 h-12 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+    </svg>
+  </div>
+
+  <h2 class="text-2xl font-black text-orange-900 italic uppercase tracking-tighter mb-2">
+    Здесь пока пусто
+  </h2>
+  
+  <p class="text-gray-400 font-bold uppercase text-[10px] tracking-[0.2em] mb-8 max-w-xs leading-relaxed">
+    В этой категории еще нет товаров, но мы скоро их добавим!
+  </p>
+
+  <button (click)="applyFilter('all')" 
+          class="px-8 py-4 bg-white border-2 border-orange-100 rounded-2xl text-xs font-black uppercase tracking-widest text-orange-600 hover:bg-orange-50 transition-all active:scale-95 shadow-sm">
+    Показать всё меню
+  </button>
+</div>
             </div>
           </div>
         </div>

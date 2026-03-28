@@ -37,7 +37,7 @@
                   <img *ngIf="imagePreview" [src]="imagePreview" class="absolute inset-0 w-full h-full object-cover">
                   
                   <img *ngIf="!imagePreview && venueForm.get('imageUrl')?.value" 
-                       [src]="'http://localhost:8080' + venueForm.get('imageUrl')?.value" 
+                       [src]="venueForm.get('imageUrl')?.value" 
                        class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
 
                   <div *ngIf="imagePreview || venueForm.get('imageUrl')?.value" 
@@ -147,7 +147,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div *ngFor="let p of products" class="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 flex gap-3 sm:gap-4 hover:shadow-lg transition-all items-center group">
           <div class="w-20 h-20 sm:w-24 sm:h-24 relative rounded-xl overflow-hidden shrink-0 shadow-sm">
-            <img [src]="'http://localhost:8080' + p.imageUrl" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+            <img [src]="p.imageUrl" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
           </div>
           <div class="flex-1 flex flex-col justify-between py-1 min-w-0 h-full">
             <div>

@@ -31,7 +31,7 @@
            [class.opacity-60]="!venue.hasItemsInStock">
         
         <div class="relative h-64 overflow-hidden bg-gray-100">
-          <img [src]="'http://localhost:8080' + venue.imageUrl" 
+          <img [src]="venue.imageUrl" 
                [alt]="venue.name" 
                class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                [class.grayscale]="!venue.hasItemsInStock">
