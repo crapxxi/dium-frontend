@@ -13,9 +13,9 @@ import { ManageVenueComponent } from './components/manage-venue/manage-venue.com
 import { SupportComponent } from './components/support/support.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'venues', pathMatch: 'full' }, // Главная ведет на заведения
+  { path: '', redirectTo: 'venues', pathMatch: 'full' },
   { path: 'venues', component: VenueListComponent },
-  { path: 'login', component: LoginComponent },        // Вот тут магия для кнопки "Войти"
+  { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'kitchen', component: KitchenPanelComponent },
   { path: 'cart', component: CartComponent },
@@ -26,6 +26,5 @@ export const routes: Routes = [
   { path: 'create-venue', component:CreateVenueComponent},
   { path: 'manage-venue/:id', component:ManageVenueComponent},
   { path: 'support', component:SupportComponent},
-  // Можно добавить страницу 404
   { path: '**', redirectTo: 'venues' }
 ];
