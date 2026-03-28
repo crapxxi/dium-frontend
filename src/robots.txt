@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /orders
+Disallow: /kitchen
+Disallow: /cart
+
+Sitemap: https://dium.kz/sitemap.xml
