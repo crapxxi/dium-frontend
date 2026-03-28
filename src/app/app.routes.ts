@@ -11,9 +11,11 @@ import { AdminRegisterOwnerComponent } from './components/admin/register-owner.c
 import { CreateVenueComponent } from './components/create-venue/create-venue.component';
 import { ManageVenueComponent } from './components/manage-venue/manage-venue.component';
 import { SupportComponent } from './components/support/support.component';
+import { LandingComponent } from './components/landing-component/landing.component';
+import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'venues', pathMatch: 'full' },
+  { path: '', component: LandingComponent,canActivate: [guestGuard] },
   { path: 'venues', component: VenueListComponent },
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
