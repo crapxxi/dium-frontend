@@ -77,9 +77,21 @@
 
     <div *ngIf="!isLoading && venues.length === 0" class="flex flex-col items-center justify-center py-40 text-center">
       <div class="w-24 h-24 bg-orange-50 rounded-[40px] flex items-center justify-center text-5xl mb-8 grayscale opacity-20 border-2 border-orange-100">
-        🏙️
+        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" 
+         class="w-20 h-20 text-orange-200 group-hover:text-orange-500 transition-colors duration-500">
+      
+      <path d="M75 15C75 15 65 20 65 30C65 40 75 45 75 45C60 45 50 35 50 30C50 20 60 15 75 15Z" fill="currentColor"/>
+      
+      <path d="M10 50L50 25L90 50H10Z" fill="currentColor"/>
+      
+      <rect x="20" y="55" width="8" height="30" rx="2" fill="currentColor"/>
+      <rect x="46" y="55" width="8" height="30" rx="2" fill="currentColor"/>
+      <rect x="72" y="55" width="8" height="30" rx="2" fill="currentColor"/>
+      
+      <path d="M5 85H95V95H5V85Z" rx="2" fill="currentColor"/>
+    </svg>
       </div>
-      <h2 class="text-4xl font-black text-orange-900/10 uppercase italic tracking-tighter">Город спит...</h2>
+      <h2 class="text-4xl font-black text-orange-900/10 uppercase italic tracking-tighter">Универы спят...</h2>
       <p class="text-[10px] font-black text-orange-900/20 uppercase tracking-[0.4em] mt-4">Заведений пока не найдено</p>
     </div>
 
