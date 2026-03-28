@@ -1,0 +1,111 @@
+<header class="bg-gradient-to-r from-orange-600 to-orange-500 border-b border-orange-700 sticky top-0 z-50 shadow-lg font-sans">
+  <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-4 flex items-center justify-between">
+    
+    <div class="flex flex-col cursor-pointer" routerLink="/">
+      <h1 class="text-xl md:text-2xl font-bold text-white tracking-tight leading-tight">Dium</h1>
+      <p class="hidden sm:block text-[10px] text-orange-100 opacity-90 font-medium">Заказывай быстро, забирай без очереди</p>
+    </div>
+
+    <div class="flex items-center gap-2 md:gap-6" *ngIf="(user | async) as currentUser; else loginTemplate">
+      
+      <nav class="hidden lg:flex items-center gap-2 text-sm font-semibold border-r border-white/20 pr-6 mr-2">
+        <a routerLink="/venues" routerLinkActive="bg-white !text-orange-600 shadow-sm" 
+           class="flex items-center gap-2 px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all">
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store h-4 w-4 mr-2"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path><path d="M2 7h20"></path><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"></path></svg>
+          Заведения
+        </a>
+
+        <a routerLink="/cart" routerLinkActive="bg-white !text-orange-600 shadow-sm" 
+   class="flex items-center gap-2 px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all relative">
+   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-shopping-cart h-4 w-4 mr-2"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+  Корзина
+  
+  <span *ngIf="(cartService.itemCount$ | async) as count"
+        [class.hidden]="count === 0"
+        class="bg-white text-orange-600 text-[10px] font-black px-1.5 py-0.5 rounded-full ml-1 shadow-sm">
+    {{ count }}
+  </span>
+</a>
+
+        <a routerLink="/orders" routerLinkActive="bg-white !text-orange-600 shadow-sm" 
+           class="flex items-center gap-2 px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all">
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-receipt h-4 w-4 mr-2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg>
+          Заказы
+        </a>
+
+        <a *ngIf="currentUser.role === 'VENUE_OWNER'" 
+           routerLink="/kitchen" routerLinkActive="bg-white !text-orange-600 shadow-sm" 
+           class="flex items-center gap-2 px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all">
+           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chef-hat h-4 w-4 mr-2"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"></path><path d="M6 17h12"></path></svg>
+          Кухня
+        </a>
+      </nav>
+
+      <a routerLink="/cart" class="lg:hidden relative p-2 text-white hover:bg-white/10 rounded-xl transition-all">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        
+        <span *ngIf="(cartService.itemCount$ | async) as count"
+              [class.hidden]="count === 0"
+              class="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full border border-orange-600">
+          {{ count }}
+        </span>
+      </a>
+
+      <div class="relative">
+        <div (click)="toggleMenu()" 
+             class="flex items-center gap-2 md:gap-3 bg-white/10 px-3 md:px-4 py-2 rounded-xl cursor-pointer hover:bg-white/20 transition-all border border-white/10 active:scale-95">
+          <div class="flex flex-col items-start leading-none">
+            <span class="hidden md:block text-[10px] opacity-70 mb-0.5">Привет,</span>
+            <span class="text-xs md:text-sm font-bold text-white">{{ currentUser.name.split(' ')[0] }}</span>
+          </div>
+          <span class="text-[10px] opacity-50 transition-transform" [class.rotate-180]="isMenuOpen">▼</span>
+        </div>
+      
+        <div *ngIf="isMenuOpen" 
+             class="absolute right-0 mt-3 w-56 bg-white rounded-2xl shadow-2xl py-2 z-50 border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200">
+          
+          <div class="lg:hidden border-b border-gray-50 pb-2 mb-2">
+            <a routerLink="/venues" (click)="isMenuOpen = false" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-store h-4 w-4 mr-2"><path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path><path d="M2 7h20"></path><path d="M22 7v3a2 2 0 0 1-2 2a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 16 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 12 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 8 12a2.7 2.7 0 0 1-1.59-.63.7.7 0 0 0-.82 0A2.7 2.7 0 0 1 4 12a2 2 0 0 1-2-2V7"></path></svg>Заведения</a>
+            <a routerLink="/orders" (click)="isMenuOpen = false" class="flex items-center px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-receipt h-4 w-4 mr-2"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><path d="M12 17.5v-11"></path></svg>Мои заказы</a>
+            <a *ngIf="currentUser.role === 'VENUE_OWNER'" routerLink="/kitchen" (click)="isMenuOpen = false" class="flex items-center px-4 py-2.5 text-sm text-orange-600 font-bold hover:bg-orange-50">           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chef-hat h-4 w-4 mr-2"><path d="M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z"></path><path d="M6 17h12"></path></svg> Панель кухни</a>
+          </div>
+
+          <button routerLink="/profile" (click)="isMenuOpen = false"
+                  class="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-orange-50 flex items-center gap-2 transition-colors">
+                  <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="20" 
+                  height="20" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  stroke-width="2" 
+                  stroke-linecap="round" 
+                  stroke-linejoin="round" 
+                  class="lucide lucide-user">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                </svg> Мой профиль
+          </button>
+      
+          <hr class="my-1 border-gray-50">
+      
+          <button (click)="logout()" 
+                  class="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 font-bold flex items-center gap-2 transition-colors">
+            Выйти
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #loginTemplate>
+      <button routerLink="/login" 
+              class="bg-white text-orange-600 px-5 md:px-8 py-2 md:py-2.5 rounded-xl text-sm font-bold hover:bg-orange-50 transition-all shadow-md active:scale-95">
+        Войти
+      </button>
+    </ng-template>
+
+  </div>
+</header>
+
+<div *ngIf="isMenuOpen" (click)="isMenuOpen = false" class="fixed inset-0 z-40 bg-black/10 backdrop-blur-[2px]"></div>
