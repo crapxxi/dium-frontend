@@ -11,6 +11,7 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './register.component.html'
 })
 export class RegisterComponent {
+  isLoading = false;
   private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -26,6 +27,7 @@ export class RegisterComponent {
 
   onSubmit() {
     this.errorMessage = '';
+    this.isLoading = true;
   
     if (this.registerData.password !== this.registerData.confirmPassword) {
       this.errorMessage = 'Пароли не совпадают';
@@ -57,10 +59,12 @@ export class RegisterComponent {
   
     this.authService.register(finalData).subscribe({
       next: () => {
+        this.isLoading = false;
         this.router.navigate(['/login']);
       },
       error: (err) => {
         console.error(err);
+        this.isLoading = false;
         this.errorMessage = err.error?.message || 'Этот номер уже зарегистрирован';
         this.cdr.detectChanges();
       }
