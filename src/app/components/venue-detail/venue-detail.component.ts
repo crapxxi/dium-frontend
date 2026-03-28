@@ -87,6 +87,7 @@ export class VenueDetailComponent implements OnInit {
     event.stopPropagation();
     if (this.simpleCartQuantities[product.id] > 0) {
       this.simpleCartQuantities[product.id]--;
+      this.cartService.removeFromCart(product);
     }
   }
 
