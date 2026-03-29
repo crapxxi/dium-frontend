@@ -77,22 +77,38 @@
             </thead>
             <tbody class="divide-y divide-orange-50">
               <tr *ngFor="let order of filteredOrders()" class="hover:bg-orange-50/20 transition-all duration-200">
-                <td class="px-8 py-7">
+                
+                <td class="px-8 py-7 align-top">
                   <p class="font-black text-orange-900 italic text-xl leading-none">#{{ order.id }}</p>
                   <p class="text-[9px] font-bold text-gray-300 uppercase mt-1.5 italic">{{ order.createdAt | date:'HH:mm, dd MMM' }}</p>
                 </td>
-                <td class="px-8 py-7">
-                  <div class="flex flex-wrap gap-1.5 max-w-[240px]">
-                    <span *ngFor="let item of order.items" 
-                          class="text-[9px] font-black bg-orange-100/60 text-orange-700 px-2.5 py-1 rounded-lg uppercase italic border border-orange-100">
-                      {{ item.productName }} <span class="text-orange-400 ml-0.5">x{{ item.count }}</span>
-                    </span>
+  
+                <td class="px-8 py-7 align-top">
+                  <div class="flex flex-col gap-3 max-w-[280px]">
+                    
+                    <div *ngFor="let item of order.items" class="flex flex-col gap-1.5">
+                      <div class="flex items-start">
+                        <span class="text-[10px] font-black bg-orange-100/60 text-orange-800 px-2.5 py-1 rounded-lg uppercase italic border border-orange-100/80">
+                          {{ item.productName }} <span class="text-orange-500 ml-1 text-[11px]">x{{ item.count }}</span>
+                        </span>
+                      </div>
+                      
+                      <div *ngIf="item.modifiers && item.modifiers.length > 0" class="flex flex-wrap gap-1.5 pl-2">
+                        <span *ngFor="let mod of item.modifiers" 
+                              class="text-[8.5px] font-bold text-gray-500 uppercase tracking-widest bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100 flex items-center gap-1">
+                          <span class="text-orange-400 font-black">+</span> {{ mod.name }}
+                        </span>
+                      </div>
+                    </div>
+  
                   </div>
                 </td>
-                <td class="px-8 py-7 text-right">
+  
+                <td class="px-8 py-7 text-right align-top">
                   <p class="font-black text-orange-900 italic text-lg tracking-tighter">{{ order.totalSum | number:'1.0-0' }} ₸</p>
                 </td>
-                <td class="px-8 py-7 text-center">
+  
+                <td class="px-8 py-7 text-center align-top">
                   <span [class]="getStatusClass(order.status)" class="transition-all">
                     {{ order.status === 'COMPLETED' ? 'Выдан' : 'Отмена' }}
                   </span>
