@@ -63,7 +63,7 @@ export class OrdersComponent {
 
   translateStatus(status: string): string {
     const translations: Record<string, string> = {
-      'PENDING': 'Принят',
+      'PENDING': 'Ожидается оплата',
       'PREPARING': 'Готовится',
       'READY': 'Готов к выдаче',
       'COMPLETED': 'Получен',

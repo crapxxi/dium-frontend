@@ -13,6 +13,7 @@ import { ManageVenueComponent } from './components/manage-venue/manage-venue.com
 import { SupportComponent } from './components/support/support.component';
 import { LandingComponent } from './components/landing-component/landing.component';
 import { guestGuard } from './guards/guest.guard';
+import { OrderHistoryComponent } from './components/order-history/order-history.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent,canActivate: [guestGuard] },
@@ -28,5 +29,6 @@ export const routes: Routes = [
   { path: 'create-venue', component:CreateVenueComponent},
   { path: 'manage-venue/:id', component:ManageVenueComponent},
   { path: 'support', component:SupportComponent},
+  {path: 'order-history', component:OrderHistoryComponent},
   { path: '**', redirectTo: 'venues' }
 ];

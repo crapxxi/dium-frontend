@@ -13,6 +13,17 @@
       <div *ngIf="!isLoading()" class="space-y-8">
         
         <div *ngFor="let order of orders()" class="bg-white rounded-[40px] border-2 border-orange-50 shadow-xl shadow-orange-900/5 overflow-hidden transition-all flex flex-col">
+
+          <div class="px-8 pt-8 flex items-center gap-2">
+            <div class="bg-orange-100 p-2 rounded-xl">
+              <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+              </svg>
+            </div>
+            <span class="text-[11px] font-black uppercase text-orange-900 tracking-widest italic">
+              Заведение: {{ order.venueName || 'Заведение DIUM' }}
+            </span>
+          </div>
           
           <div class="p-8 pb-4 flex justify-between items-start">
             <div>

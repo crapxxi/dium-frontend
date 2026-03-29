@@ -7,7 +7,6 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    // ВАЖНО: Добавь withFetch() внутрь provideHttpClient
     provideHttpClient(
       withFetch(), 
       withInterceptors([authInterceptor])
