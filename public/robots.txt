@@ -1,8 +1,16 @@
 User-agent: *
 Allow: /
-Disallow: /profile
-Disallow: /orders
-Disallow: /kitchen
-Disallow: /cart
+Disallow: /profile/
+Disallow: /orders/
+Disallow: /kitchen/
+Disallow: /cart/
+Disallow: /manage-venue/
+Disallow: /admin/
+Disallow: /support/
+Disallow: /order-history/
+Disallow: /login/
+Disallow: /register/
+Disallow: /venue/
+Disallow: /create-venue/
 
 Sitemap: https://dium.kz/sitemap.xml
