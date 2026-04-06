@@ -110,18 +110,22 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
   onUpdateVenue() {
     if (this.venueForm.invalid) return;
     this.isSaving = true;
-
+  
     const formData = new FormData();
     
-    const venueBlob = new Blob([JSON.stringify(this.venueForm.getRawValue())], { 
+
+    const venueData = this.venueForm.getRawValue();
+    
+    const venueBlob = new Blob([JSON.stringify(venueData)], { 
       type: 'application/json' 
     });
-    formData.append('venue', venueBlob);
-
+    
+    formData.append('venueDTO', venueBlob); 
+  
     if (this.selectedVenueFile) {
       formData.append('image', this.selectedVenueFile);
     }
-
+  
     this.http.put(`${environment.apiUrl}/venues/manage`, formData)
       .pipe(finalize(() => { 
         this.isSaving = false; 
@@ -130,7 +134,8 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => { 
           alert('Настройки заведения сохранены!'); 
-          this.showSettings = false; 
+          this.showSettings = false;
+          this.loadInitialData(); 
         },
         error: (err) => { 
           console.error(err); 
