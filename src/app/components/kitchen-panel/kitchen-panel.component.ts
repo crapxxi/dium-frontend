@@ -22,7 +22,7 @@ export class KitchenPanelComponent implements OnInit, OnDestroy {
   private refreshSub?: Subscription;
 
   ngOnInit() {
-    this.refreshSub = interval(10000).pipe(
+    this.refreshSub = interval(3000).pipe(
       startWith(0),
       switchMap(() => this.http.get<OrderResponse[]>(`${environment.apiUrl}/orders/kitchen`)),
       map(orders => orders.sort((a, b) => 
