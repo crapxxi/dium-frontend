@@ -14,6 +14,7 @@ export interface User {
     canDeliver: boolean;
     kaspiUrl: string;
     deliveryPrice: number;
+    isWorking: boolean;
   }
 
   export interface OrderModifierResponse {

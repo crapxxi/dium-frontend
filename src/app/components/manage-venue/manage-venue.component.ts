@@ -28,6 +28,7 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
   isAddingProduct = false;
   showSettings = false;
   showAddProductForm = false;
+  isWorking = false;
   
   showModifierManager = false;
   selectedProduct: Product | null = null;
@@ -334,6 +335,30 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
         },
         error: (err) => { console.error(err); alert('Ошибка при удалении опции'); }
+      });
+  }
+
+  toggleWork() {
+    if (!this.venue) return;
+  
+    
+    this.http.patch(`${environment.apiUrl}/venues/manage/toggleWork`, {})
+      .subscribe({
+        next: () => {
+          if (this.venue) {
+            this.venue.isWorking = !this.venue.isWorking;
+          }
+          
+          const statusText = this.venue?.isWorking ? 'открыто' : 'закрыто';
+          console.log(`Заведение теперь ${statusText}`);
+          
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Ошибка при переключении статуса:', err);
+          alert('Не удалось изменить статус работы заведения. Попробуйте позже.');
+          this.cdr.detectChanges();
+        }
       });
   }
 
