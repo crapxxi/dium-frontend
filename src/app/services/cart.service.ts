@@ -143,13 +143,14 @@ export class CartService {
     }
   }
 
-  checkout(address: string | null, comment: string = ''): Observable<any> {
+  checkout(address: string | null, comment: string = '', paymentFrom: string = ''): Observable<any> {
     const items = this.cartItems.value;
     const venue = this.currentVenue.value;
     if (items.length === 0) return throwError(() => new Error('Empty cart'));
 
     const isDelivery = !!address;
     const fee = (isDelivery && venue) ? (venue.deliveryPrice || 0) : 0;
+    const finalPaymentMethod = paymentFrom || this.authService.currentUserValue?.paymentFrom;
 
     const orderRequest: OrderRequest = {
       venueId: items[0].venueId,
@@ -159,7 +160,8 @@ export class CartService {
         productId: item.id,
         count: item.count,
         modifierIds: item.selectedModifiers?.map(m => m.id) || []
-      }))
+      })),
+      paymentFrom: finalPaymentMethod
     };
 
     return this.http.post(`${environment.apiUrl}/orders`, orderRequest);

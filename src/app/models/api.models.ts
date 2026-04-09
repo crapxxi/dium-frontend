@@ -2,6 +2,7 @@ export interface User {
     phone: string;
     name: string;
     role: 'CLIENT' | 'VENUE_OWNER' | 'ADMIN';
+    paymentFrom: string;
   }
   
   export interface Venue {
@@ -54,6 +55,7 @@ export interface User {
     address: string;
     comment: string;
     deliveryFee: number;
+    paymentFrom: string;
   }
 
   export interface RegisterRequest {
@@ -73,6 +75,7 @@ export interface User {
     items: OrderItemRequest[];
     address: string | null;
     comment: string;
+    paymentFrom?: string;
   }
 
   export interface LoginRequest {

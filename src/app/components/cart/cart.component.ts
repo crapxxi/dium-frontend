@@ -22,6 +22,7 @@ export class CartComponent implements OnInit, OnDestroy {
   public isDelivery = false; 
   public address = '';       
   public orderComment = ''; 
+  public paymentFrom = '';
   
   public canDeliver = false;
   private venueSub?: Subscription;
@@ -55,6 +56,11 @@ export class CartComponent implements OnInit, OnDestroy {
       this.router.navigate(['/login']);
       return;
     }
+
+    if(!this.paymentFrom.trim()) {
+      alert('Пожалуйста, впишите от кого поступит оплата!')
+      return;
+    }
   
     if (this.isDelivery && !this.address.trim()) {
       alert('Пожалуйста, введите адрес доставки');
@@ -66,7 +72,7 @@ export class CartComponent implements OnInit, OnDestroy {
     const finalAddress = this.isDelivery ? this.address.trim() : null;
     const comment = this.orderComment.trim();
   
-    this.cartService.checkout(finalAddress, comment).subscribe({
+    this.cartService.checkout(finalAddress, comment, this.paymentFrom).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.cartService.clearCart(); 

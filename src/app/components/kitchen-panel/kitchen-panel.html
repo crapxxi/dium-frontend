@@ -67,11 +67,22 @@
                 <div class="bg-red-500/10 p-2.5 rounded-2xl shrink-0 animate-ping">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </div>
-                <div class="flex-1">
-                  <p class="text-[10px] font-black uppercase text-red-600 tracking-[0.3em] mb-1.5 opacity-90">ВНИМАНИЕ! Комментарий к заказу:</p>
-                  <p class="text-sm font-black text-red-950 leading-tight italic uppercase ">
-                    {{order.comment}}
-                  </p>
+                <div class="flex flex-col gap-4">
+                  <div class="flex-1">
+                    <p class="text-[14px] font-black uppercase text-red-600 tracking-[0.3em] mb-1.5 opacity-90">КЛИЕНТ / ОПЛАТА:</p>
+                    <p class="text-lg font-black text-red-950 leading-tight italic uppercase">
+                      {{ order.paymentFrom }}
+                    </p>
+                  </div>
+                
+                  <div *ngIf="order.comment && order.comment.trim()" class="flex-1 mt-2">
+                    <p class="text-[14px] font-black uppercase text-red-600 tracking-[0.3em] mb-1.5 opacity-90">
+                      Комментарий:
+                    </p>
+                    <p class="text-lg font-black text-red-950 leading-tight italic uppercase  bg-red-50 rounded-lg">
+                      {{ order.comment }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
