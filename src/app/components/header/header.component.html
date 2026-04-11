@@ -52,15 +52,15 @@
         </a>
       </nav>
 
-      <div class="relative group mr-2 md:mr-4 z-50">
-        <button class="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+      <div class="relative mr-2 md:mr-4 z-50">
+        <button (click)="isLangMenuOpen = !isLangMenuOpen" class="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
           {{ currentLang }}
-          <svg class="w-3 h-3 opacity-50 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+          <svg class="w-3 h-3 opacity-50 transition-transform duration-300" [class.rotate-180]="isLangMenuOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
         </button>
       
-        <div class="absolute top-full right-0 mt-2 w-16 bg-white rounded-xl shadow-2xl border border-orange-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col overflow-hidden">
+        <div *ngIf="isLangMenuOpen" class="absolute top-full right-0 mt-2 w-16 bg-white rounded-xl shadow-2xl border border-orange-100 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <button *ngFor="let lang of languages" 
-                  (click)="changeLanguage(lang)"
+                  (click)="changeLanguage(lang); isLangMenuOpen = false" 
                   [class.bg-orange-50]="currentLang === lang"
                   [class.text-orange-600]="currentLang === lang"
                   [class.text-gray-500]="currentLang !== lang"
@@ -111,15 +111,15 @@
     <ng-template #loginTemplate>
       <div class="flex items-center gap-3 md:gap-4">
         
-        <div class="relative group z-50">
-          <button class="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
+        <div class="relative mr-2 md:mr-4 z-50">
+          <button (click)="isLangMenuOpen = !isLangMenuOpen" class="flex items-center gap-1.5 px-3 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-95">
             {{ currentLang }}
-            <svg class="w-3 h-3 opacity-50 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
+            <svg class="w-3 h-3 opacity-50 transition-transform duration-300" [class.rotate-180]="isLangMenuOpen" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"></path></svg>
           </button>
         
-          <div class="absolute top-full right-0 mt-2 w-16 bg-white rounded-xl shadow-2xl border border-orange-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 flex flex-col overflow-hidden">
+          <div *ngIf="isLangMenuOpen" class="absolute top-full right-0 mt-2 w-16 bg-white rounded-xl shadow-2xl border border-orange-100 flex flex-col overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <button *ngFor="let lang of languages" 
-                    (click)="changeLanguage(lang)"
+                    (click)="changeLanguage(lang); isLangMenuOpen = false" 
                     [class.bg-orange-50]="currentLang === lang"
                     [class.text-orange-600]="currentLang === lang"
                     [class.text-gray-500]="currentLang !== lang"
@@ -137,4 +137,4 @@
 
   </div>
 </header>
-<div *ngIf="isMenuOpen" (click)="isMenuOpen = false" class="fixed inset-0 z-40 bg-black/10 backdrop-blur-[2px]"></div>
+<div *ngIf="isMenuOpen || isLangMenuOpen" (click)="isMenuOpen = false; isLangMenuOpen = false" class="fixed inset-0 z-40" [class.bg-black/10]="isMenuOpen" [class.backdrop-blur-[2px]]="isMenuOpen"></div>

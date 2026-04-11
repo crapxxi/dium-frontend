@@ -16,6 +16,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 export class HeaderComponent {
   authService = inject(AuthService);
   cartService = inject(CartService);
+  isLangMenuOpen = false;
   public translate = inject(TranslateService);
   private platformId = inject(PLATFORM_ID);
 
