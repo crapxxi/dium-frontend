@@ -8,7 +8,8 @@
   "GREETING": "Hi",
   "MY_PROFILE": "My profile",
   "LOGOUT": "Log out",
-  "BACK": "Back"
+  "BACK": "Back",
+  "LOGIN": "Login"
 },
     "VENUES": {
       "TITLE": "Venues",

@@ -8,7 +8,8 @@
       "GREETING": "Привет",
       "MY_PROFILE": "Мой профиль",
       "LOGOUT": "Выйти",
-      "BACK": "Назад"
+      "BACK": "Назад",
+      "LOGIN": "Войти"
     },
     "VENUES": {
       "TITLE": "Заведения",
