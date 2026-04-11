@@ -5,11 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule], 
+  imports: [CommonModule, RouterLink, FormsModule, TranslateModule], 
   templateUrl: './cart.component.html'
 })
 export class CartComponent implements OnInit, OnDestroy {

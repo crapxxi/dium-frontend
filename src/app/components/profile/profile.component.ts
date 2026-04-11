@@ -7,11 +7,13 @@ import { Subscription, filter } from 'rxjs';
 import { User, Venue } from '../../models/api.models';
 import { SupportComponent } from '../support/support.component';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit, OnDestroy {

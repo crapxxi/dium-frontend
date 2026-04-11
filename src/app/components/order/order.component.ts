@@ -4,11 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router'; 
 import { OrderResponse } from '../../models/api.models';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './order.component.html'
 })
 export class OrdersComponent {

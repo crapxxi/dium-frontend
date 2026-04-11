@@ -1,107 +1,111 @@
 <main class="min-h-screen bg-[#FFFBF0] py-10 pb-24">
-    <div class="max-w-3xl mx-auto px-4">
-      
-      <div class="flex justify-between items-center mb-10">
-        <h1 class="text-3xl font-black text-orange-900 uppercase italic tracking-tighter">Мои заказы</h1>
-      </div>
-  
-      <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20">
-        <div class="w-10 h-10 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin mb-4"></div>
-        <p class="text-[9px] font-black uppercase text-orange-300 tracking-[0.2em]">Ищем чеки...</p>
-      </div>
-  
-      <div *ngIf="!isLoading()" class="space-y-8">
-        
-        <div *ngFor="let order of orders()" class="bg-white rounded-[40px] border-2 border-orange-50 shadow-xl shadow-orange-900/5 overflow-hidden transition-all flex flex-col">
-
-          <div class="px-8 pt-8 flex items-center gap-2">
-            <div class="bg-orange-100 p-2 rounded-xl">
-              <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-              </svg>
-            </div>
-            <span class="text-[11px] font-black uppercase text-orange-900 tracking-widest italic">
-              Заведение: {{ order.venueName || 'Заведение DIUM' }}
-            </span>
-          </div>
-          
-          <div class="p-8 pb-4 flex justify-between items-start">
-            <div>
-              <div class="flex items-center gap-3 mb-1">
-                <span class="text-2xl font-black text-orange-900 italic tracking-tighter">#{{ order.id }}</span>
-                <span [class]="getStatusClass(order.status)">{{ translateStatus(order.status) }}</span>
-              </div>
-              <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{{ order.createdAt | date:'dd MMMM, HH:mm' }}</p>
-            </div>
-            
-            <div *ngIf="order.status !== 'COMPLETED' && order.status !== 'CANCELLED'" 
-                 class="bg-orange-900 px-5 py-3 rounded-2xl text-center shadow-lg shadow-orange-100">
-              <p class="text-[8px] font-black text-orange-300 uppercase tracking-widest mb-0.5">Код</p>
-              <p class="text-2xl font-black text-white italic leading-none">{{ order.pickupCode }}</p>
-            </div>
-          </div>
-  
-          <div class="px-8 py-4 space-y-4 flex-1">
-            <div *ngFor="let item of order.items" class="flex justify-between items-start py-3 border-b border-orange-50 last:border-0">
-              <div class="flex-1">
-                <p class="font-black text-orange-900 uppercase text-[11px] tracking-tight">
-                  {{ item.productName }} <span class="text-orange-400 font-black italic ml-1">× {{ item.count }}</span>
-                </p>
-                
-                <div *ngIf="item.modifiers && item.modifiers.length > 0" class="flex flex-wrap gap-1 mt-1.5">
-                  <span *ngFor="let mod of item.modifiers" class="text-[9px] font-bold text-gray-400 italic">
-                    + {{ mod.name }}
-                  </span>
-                </div>
-              </div>
-              <span class="font-black text-orange-900 text-xs italic ml-4">{{ (item.priceAtPurchase) * item.count }} ₸</span>
-            </div>
-          
-            <div *ngIf="order.address && order.deliveryFee" class="flex justify-between items-center py-3 border-t-2 border-dashed border-orange-50">
-              <div class="flex items-center gap-2">
-                  <span class="text-lg">🚚</span>
-                  <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest">Доставка курьером</p>
-              </div>
-              <span class="font-black text-orange-600 text-xs italic">+ {{ order.deliveryFee }} ₸</span>
-            </div>
-          
-            <div *ngIf="order.comment" class="bg-gray-50 p-4 rounded-2xl border border-gray-100 mt-2">
-              <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">Ваш комментарий:</p>
-              <p class="text-[10px] font-bold text-gray-600 italic">"{{ order.comment }}"</p>
-            </div>
-          </div>
-          
-          <div class="p-8 pt-4 bg-orange-50/30 border-t border-orange-50 flex justify-between items-center">
-            <div>
-              <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest mb-0.5">
-                  {{ order.address ? 'Доставка по адресу' : 'Способ: Самовывоз' }}
-              </p>
-              <p class="text-[10px] font-black text-orange-900 uppercase truncate max-w-[200px]" [title]="order.address">
-                {{ order.address || 'Заберу сам в заведении' }}
-              </p>
-            </div>
-            <div class="text-right">
-              <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">К оплате</p>
-              <p class="text-3xl font-black text-orange-600 italic tracking-tighter">{{ order.totalSum }} ₸</p>
-            </div>
-          </div>
-
-          <div *ngIf="order.status === 'PENDING'" class="bg-white border-t border-orange-50 pt-4">
-
-            <button (click)="makeOrder(order.id)" 
-                    [disabled]="isPaymentLoading()[order.id]"
-                    class="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 disabled:shadow-none text-white font-black py-5 rounded-b-[40px] shadow-xl shadow-orange-200 uppercase text-[11px] tracking-widest transition-all active:scale-95 flex justify-center items-center gap-2">
-              
-              <svg *ngIf="isPaymentLoading()[order.id]" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-
-              {{ isPaymentLoading()[order.id] ? 'Открываем Kaspi...' : 'Оплатить в Kaspi' }}
-            </button>
-          </div>
-  
-        </div>  
-      </div>
+  <div class="max-w-3xl mx-auto px-4">
+    
+    <div class="flex justify-between items-center mb-10">
+      <h1 class="text-3xl font-black text-orange-900 uppercase italic tracking-tighter">
+          {{ 'NAV.ORDERS' | translate }}
+      </h1>
     </div>
-  </main>
+
+    <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20">
+      <div class="w-10 h-10 border-4 border-orange-100 border-t-orange-600 rounded-full animate-spin mb-4"></div>
+      <p class="text-[9px] font-black uppercase text-orange-300 tracking-[0.2em]">{{ 'ORDERS.SEARCHING' | translate }}</p>
+    </div>
+
+    <div *ngIf="!isLoading()" class="space-y-8">
+      
+      <div *ngFor="let order of orders()" class="bg-white rounded-[40px] border-2 border-orange-50 shadow-xl shadow-orange-900/5 overflow-hidden transition-all flex flex-col">
+
+        <div class="px-8 pt-8 flex items-center gap-2">
+          <div class="bg-orange-100 p-2 rounded-xl">
+            <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+          </div>
+          <span class="text-[11px] font-black uppercase text-orange-900 tracking-widest italic">
+            {{ 'ORDERS.VENUE_LABEL' | translate }}: {{ order.venueName || 'DIUM Venue' }}
+          </span>
+        </div>
+        
+        <div class="p-8 pb-4 flex justify-between items-start">
+          <div>
+            <div class="flex items-center gap-3 mb-1">
+              <span class="text-2xl font-black text-orange-900 italic tracking-tighter">#{{ order.id }}</span>
+              <span [class]="getStatusClass(order.status)">
+                  {{ 'STATUS.' + order.status | translate }}
+              </span>
+            </div>
+            <p class="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{{ order.createdAt | date:'dd MMMM, HH:mm' }}</p>
+          </div>
+          
+          <div *ngIf="order.status !== 'COMPLETED' && order.status !== 'CANCELLED'" 
+               class="bg-orange-900 px-5 py-3 rounded-2xl text-center shadow-lg shadow-orange-100">
+            <p class="text-[8px] font-black text-orange-300 uppercase tracking-widest mb-0.5">{{ 'KITCHEN.CHECK_CODE' | translate }}</p>
+            <p class="text-2xl font-black text-white italic leading-none">{{ order.pickupCode }}</p>
+          </div>
+        </div>
+
+        <div class="px-8 py-4 space-y-4 flex-1">
+          <div *ngFor="let item of order.items" class="flex justify-between items-start py-3 border-b border-orange-50 last:border-0">
+            <div class="flex-1">
+              <p class="font-black text-orange-900 uppercase text-[11px] tracking-tight">
+                {{ item.productName }} <span class="text-orange-400 font-black italic ml-1">× {{ item.count }}</span>
+              </p>
+              
+              <div *ngIf="item.modifiers && item.modifiers.length > 0" class="flex flex-wrap gap-1 mt-1.5">
+                <span *ngFor="let mod of item.modifiers" class="text-[9px] font-bold text-gray-400 italic">
+                  + {{ mod.name }}
+                </span>
+              </div>
+            </div>
+            <span class="font-black text-orange-900 text-xs italic ml-4">{{ (item.priceAtPurchase) * item.count }} ₸</span>
+          </div>
+        
+          <div *ngIf="order.address && order.deliveryFee" class="flex justify-between items-center py-3 border-t-2 border-dashed border-orange-50">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🚚</span>
+                <p class="text-[10px] font-black text-orange-400 uppercase tracking-widest">{{ 'CART.DELIVERY' | translate }}</p>
+            </div>
+            <span class="font-black text-orange-600 text-xs italic">+ {{ order.deliveryFee }} ₸</span>
+          </div>
+        
+          <div *ngIf="order.comment" class="bg-gray-50 p-4 rounded-2xl border border-gray-100 mt-2">
+            <p class="text-[8px] font-black text-gray-400 uppercase tracking-widest mb-1">{{ 'KITCHEN.COMMENT_LABEL' | translate }}</p>
+            <p class="text-[10px] font-bold text-gray-600 italic">"{{ order.comment }}"</p>
+          </div>
+        </div>
+        
+        <div class="p-8 pt-4 bg-orange-50/30 border-t border-orange-50 flex justify-between items-center">
+          <div>
+            <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest mb-0.5">
+                {{ order.address ? ('ORDERS.DELIVERY_TO' | translate) : ('ORDERS.METHOD_PICKUP' | translate) }}
+            </p>
+            <p class="text-[10px] font-black text-orange-900 uppercase truncate max-w-[200px]" [title]="order.address">
+              {{ order.address || ('ORDERS.PICKUP_HINT' | translate) }}
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">{{ 'CART.TOTAL' | translate }}</p>
+            <p class="text-3xl font-black text-orange-600 italic tracking-tighter">{{ order.totalSum }} ₸</p>
+          </div>
+        </div>
+
+        <div *ngIf="order.status === 'PENDING'" class="bg-white border-t border-orange-50 pt-4">
+
+          <button (click)="makeOrder(order.id)" 
+                  [disabled]="isPaymentLoading()[order.id]"
+                  class="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 disabled:shadow-none text-white font-black py-5 rounded-b-[40px] shadow-xl shadow-orange-200 uppercase text-[11px] tracking-widest transition-all active:scale-95 flex justify-center items-center gap-2">
+            
+            <svg *ngIf="isPaymentLoading()[order.id]" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+
+            {{ isPaymentLoading()[order.id] ? ('ORDERS.KASPI_OPENING' | translate) : ('ORDERS.KASPI_PAY_BTN' | translate) }}
+          </button>
+        </div>
+
+      </div>  
+    </div>
+  </div>
+</main>

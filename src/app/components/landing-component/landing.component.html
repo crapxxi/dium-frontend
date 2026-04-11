@@ -1,62 +1,62 @@
 <main class="min-h-screen bg-[#FFFBF0] font-sans selection:bg-orange-500 selection:text-white pb-20">
   
-    <section class="relative pt-20 pb-32 px-4 overflow-hidden">
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-orange-100 rounded-full blur-3xl opacity-50 -z-10"></div>
+  <section class="relative pt-20 pb-32 px-4 overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-orange-100 rounded-full blur-3xl opacity-50 -z-10"></div>
+    
+    <div class="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-8 duration-700">
       
-      <div class="max-w-4xl mx-auto text-center animate-in fade-in slide-in-from-bottom-8 duration-700">
-        
-        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 text-orange-600 font-black text-[10px] uppercase tracking-widest mb-8 border border-orange-200">
-          <span class="relative flex h-2 w-2">
-            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
-            <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
-          </span>
-          Dium работает в твоем универе
-        </div>
-  
-        <h1 class="text-6xl md:text-8xl font-black text-orange-900 italic tracking-tighter uppercase leading-[0.9] mb-6 drop-shadow-sm">
-          Хватит стоять <br>
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">в очередях</span>
-        </h1>
-        
-        <p class="text-sm md:text-base font-bold text-gray-500 uppercase tracking-widest max-w-xl mx-auto leading-relaxed mb-12">
-          Заказывай еду на пару минут раньше. Оплачивай онлайн. Забирай свой перекус сразу, как прозвенит звонок.
-        </p>
-  
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button routerLink="/venues" class="w-full sm:w-auto px-12 py-5 bg-orange-600 hover:bg-orange-700 text-white rounded-[28px] font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-orange-600/20 transition-all active:scale-95">
-            Хочу есть
-          </button>
-          <a href="https://wa.me/77028131494?text=Здравствуйте! Я владелец заведения и хочу подключиться к Dium." 
-            target="_blank" 
-            class="w-full sm:w-auto px-12 py-5 bg-white text-orange-900 border-2 border-orange-100 hover:border-orange-300 rounded-[28px] font-black uppercase text-xs tracking-[0.2em] shadow-sm transition-all active:scale-95 text-center inline-block cursor-pointer">
-            Я владелец буфета
-          </a>
-        </div>
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-100 text-orange-600 font-black text-[10px] uppercase tracking-widest mb-8 border border-orange-200">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-orange-500"></span>
+        </span>
+        {{ 'HOME.BADGE' | translate }}
       </div>
-    </section>
-  
-    <section class="max-w-5xl mx-auto px-4 py-10">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <div class="bg-white p-8 rounded-[40px] border-2 border-orange-50 shadow-lg shadow-orange-900/5 hover:-translate-y-2 transition-transform duration-300">
-          <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center font-black text-2xl mb-6 italic">1</div>
-          <h3 class="text-xl font-black text-orange-900 uppercase tracking-tighter mb-2">Выбери еду</h3>
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">Пока препод диктует лекцию, собери корзину в любимом буфете.</p>
-        </div>
-  
-        <div class="bg-white p-8 rounded-[40px] border-2 border-orange-50 shadow-lg shadow-orange-900/5 hover:-translate-y-2 transition-transform duration-300">
-          <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center font-black text-2xl mb-6 italic">2</div>
-          <h3 class="text-xl font-black text-orange-900 uppercase tracking-tighter mb-2">Оплати в клик</h3>
-          <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">Перевод или карта — всё прозрачно. Твой заказ сразу улетает на кухню.</p>
-        </div>
-  
-        <div class="bg-orange-600 p-8 rounded-[40px] border-2 border-orange-500 shadow-xl shadow-orange-600/20 hover:-translate-y-2 transition-transform duration-300 group">
-          <div class="w-14 h-14 bg-white/20 text-white rounded-2xl flex items-center justify-center font-black text-2xl mb-6 italic group-hover:scale-110 transition-transform">3</div>
-          <h3 class="text-xl font-black text-white uppercase tracking-tighter mb-2">Забирай без очереди</h3>
-          <p class="text-[10px] font-bold text-orange-100 uppercase tracking-widest leading-relaxed">Просто подойди к выдаче, назови имя и забери свой горячий сэндвич.</p>
-        </div>
-  
+
+      <h1 class="text-6xl md:text-8xl font-black text-orange-900 italic tracking-tighter uppercase leading-[0.9] mb-6 drop-shadow-sm">
+        {{ 'HOME.HERO_TITLE_1' | translate }} <br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-orange-400">{{ 'HOME.HERO_TITLE_HIGHLIGHT' | translate }}</span>
+      </h1>
+      
+      <p class="text-sm md:text-base font-bold text-gray-500 uppercase tracking-widest max-w-xl mx-auto leading-relaxed mb-12">
+        {{ 'HOME.HERO_SUBTITLE' | translate }}
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <button routerLink="/venues" class="w-full sm:w-auto px-12 py-5 bg-orange-600 hover:bg-orange-700 text-white rounded-[28px] font-black uppercase text-xs tracking-[0.2em] shadow-xl shadow-orange-600/20 transition-all active:scale-95">
+          {{ 'HOME.BTN_USER' | translate }}
+        </button>
+        <a href="https://wa.me/77028131494?text=Здравствуйте! Я владелец заведения и хочу подключиться к Dium." 
+          target="_blank" 
+          class="w-full sm:w-auto px-12 py-5 bg-white text-orange-900 border-2 border-orange-100 hover:border-orange-300 rounded-[28px] font-black uppercase text-xs tracking-[0.2em] shadow-sm transition-all active:scale-95 text-center inline-block cursor-pointer">
+          {{ 'HOME.BTN_OWNER' | translate }}
+        </a>
       </div>
-    </section>
-  
-  </main>
+    </div>
+  </section>
+
+  <section class="max-w-5xl mx-auto px-4 py-10">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <div class="bg-white p-8 rounded-[40px] border-2 border-orange-50 shadow-lg shadow-orange-900/5 hover:-translate-y-2 transition-transform duration-300">
+        <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center font-black text-2xl mb-6 italic">1</div>
+        <h3 class="text-xl font-black text-orange-900 uppercase tracking-tighter mb-2">{{ 'HOME.STEP1_TITLE' | translate }}</h3>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">{{ 'HOME.STEP1_DESC' | translate }}</p>
+      </div>
+
+      <div class="bg-white p-8 rounded-[40px] border-2 border-orange-50 shadow-lg shadow-orange-900/5 hover:-translate-y-2 transition-transform duration-300">
+        <div class="w-14 h-14 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center font-black text-2xl mb-6 italic">2</div>
+        <h3 class="text-xl font-black text-orange-900 uppercase tracking-tighter mb-2">{{ 'HOME.STEP2_TITLE' | translate }}</h3>
+        <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest leading-relaxed">{{ 'HOME.STEP2_DESC' | translate }}</p>
+      </div>
+
+      <div class="bg-orange-600 p-8 rounded-[40px] border-2 border-orange-500 shadow-xl shadow-orange-600/20 hover:-translate-y-2 transition-transform duration-300 group">
+        <div class="w-14 h-14 bg-white/20 text-white rounded-2xl flex items-center justify-center font-black text-2xl mb-6 italic group-hover:scale-110 transition-transform">3</div>
+        <h3 class="text-xl font-black text-white uppercase tracking-tighter mb-2">{{ 'HOME.STEP3_TITLE' | translate }}</h3>
+        <p class="text-[10px] font-bold text-orange-100 uppercase tracking-widest leading-relaxed">{{ 'HOME.STEP3_DESC' | translate }}</p>
+      </div>
+
+    </div>
+  </section>
+
+</main>

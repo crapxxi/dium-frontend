@@ -6,6 +6,8 @@ import { Venue, Product } from '../../models/api.models';
 import { forkJoin, of } from 'rxjs';
 import { catchError, finalize, switchMap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 interface VenueWithProducts extends Venue {
   hasItemsInStock?: boolean;
@@ -14,7 +16,7 @@ interface VenueWithProducts extends Venue {
 @Component({
   selector: 'app-venue-list',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './venue-list.component.html'
 })
 export class VenueListComponent implements OnInit {

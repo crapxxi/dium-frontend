@@ -4,13 +4,14 @@ import { CommonModule } from '@angular/common';
 import { OrderResponse } from '../../models/api.models';
 import { Subscription, interval, startWith, switchMap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
 
 type OrderStatus = 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
 
 @Component({
   selector: 'app-kitchen-panel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './kitchen-panel.html'
 })
 export class KitchenPanelComponent implements OnInit, OnDestroy {
@@ -43,35 +44,44 @@ export class KitchenPanelComponent implements OnInit, OnDestroy {
   }
 
   updateStatus(orderId: number, newStatus: OrderStatus) {
-    this.http.patch(`${environment.apiUrl}/orders/${orderId}/status?status=${newStatus}`, {})
+    this.http.patch(`${environment.apiUrl}/orders/${orderId}/status`, {}, { responseType: 'text' })
       .subscribe({
         next: () => {
-          if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
-            this.orders = this.orders.filter(o => o.id !== orderId);
-          } else {
-            const order = this.orders.find(o => o.id === orderId);
-            if (order) {
-              order.status = newStatus;
+          const index = this.orders.findIndex(o => o.id === orderId);
+          if (index !== -1) {
+            if (newStatus === 'COMPLETED' || newStatus === 'CANCELLED') {
+              this.orders.splice(index, 1);
+            } else {
+              this.orders[index].status = newStatus;
               this.sortOrders();
             }
+            this.cdr.detectChanges();
           }
+        },
+        error: (err) => {
+          console.error('Ошибка:', err);
+          alert('Не удалось обновить статус');
+        }
+      });
+  }
+  
+  cancelOrder(orderId: number) {
+    if (!confirm(`Отменить заказ #${orderId}?`)) return;
+  
+    this.http.patch(`${environment.apiUrl}/orders/${orderId}/cancel`, {}, { responseType: 'text' })
+      .subscribe({
+        next: () => {
+          this.orders = this.orders.filter(o => o.id !== orderId);
           this.cdr.detectChanges();
         },
         error: (err) => {
-          console.error('Ошибка PATCH статуса:', err);
-          alert('Не удалось обновить статус. Проверьте соединение или права доступа.');
+          alert('Ошибка при отмене');
         }
       });
   }
 
   private sortOrders() {
     this.orders.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-  }
-
-  cancelOrder(orderId: number) {
-    if (confirm(`Отменить заказ #${orderId}? Это действие нельзя отменить.`)) {
-      this.updateStatus(orderId, 'CANCELLED');
-    }
   }
 
   ngOnDestroy() {

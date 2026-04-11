@@ -7,11 +7,14 @@ import { Venue, Product, ModifierGroup, Modifier } from '../../models/api.models
 import { Subscription, of } from 'rxjs';
 import { catchError, finalize, switchMap, take } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+
+
 
 @Component({
   selector: 'app-manage-venue',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, FormsModule, TranslateModule],
   templateUrl: './manage-venue.component.html'
 })
 export class ManageVenueComponent implements OnInit, OnDestroy {
@@ -58,7 +61,7 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
     description: ['', [Validators.required]],
     price: [0, [Validators.required, Validators.min(0)]],
     category: ['FOOD', [Validators.required]],
-    hasModifiers: [false]
+    hasModifiers: [false, [Validators.required]]
   });
 
   private dataSub?: Subscription;
@@ -121,7 +124,7 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
       type: 'application/json' 
     });
     
-    formData.append('venueDTO', venueBlob); 
+    formData.append('venueRequest', venueBlob); 
   
     if (this.selectedVenueFile) {
       formData.append('image', this.selectedVenueFile);
@@ -180,7 +183,7 @@ export class ManageVenueComponent implements OnInit, OnDestroy {
     if (this.productForm.invalid || !this.selectedFile) return;
     this.isAddingProduct = true;
     const formData = new FormData();
-    formData.append('product', new Blob([JSON.stringify(this.productForm.getRawValue())], { type: 'application/json' }));
+    formData.append('productRequest', new Blob([JSON.stringify(this.productForm.getRawValue())], { type: 'application/json' }));
     formData.append('image', this.selectedFile);
 
     this.http.post<Product>(`${environment.apiUrl}/products/venue/products`, formData)

@@ -4,7 +4,6 @@ export interface User {
     role: 'CLIENT' | 'VENUE_OWNER' | 'ADMIN';
     paymentFrom: string;
   }
-  
   export interface Venue {
     id: number;
     name: string;

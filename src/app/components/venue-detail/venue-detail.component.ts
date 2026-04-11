@@ -6,11 +6,13 @@ import { Venue, Product, ModifierGroup, Modifier } from '../../models/api.models
 import { CartService } from '../../services/cart.service';
 import { finalize, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-venue-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './venue-detail.component.html'
 })
 export class VenueDetailComponent implements OnInit {
@@ -55,14 +57,41 @@ export class VenueDetailComponent implements OnInit {
     ).subscribe({
       next: (result) => {
         this.venue = result.venue;
-        this.products = result.products.map(p => ({
-          ...p,
-          venueId: Number(id),
-          canDeliver: this.venue?.canDeliver || false
-        }));
+        
+        this.products = result.products
+          .map(p => ({
+            ...p,
+            venueId: Number(id),
+            canDeliver: this.venue?.canDeliver || false
+          }))
+          .sort((a, b) => {
+            const categoryOrder: { [key: string]: number } = { 'FOOD': 1, 'DRINK': 2 };
+            const orderA = categoryOrder[a.category] || 3;
+            const orderB = categoryOrder[b.category] || 3;
+
+            if (orderA !== orderB) {
+              return orderA - orderB;
+            }
+
+            return a.name.localeCompare(b.name);
+          });
+
         this.applyFilter(this.currentCategory);
       }
     });
+  }
+
+  applyFilter(category: string) {
+    this.currentCategory = category;
+    
+    if (category === 'all') {
+
+      this.filteredProducts = [...this.products];
+    } else {
+      this.filteredProducts = this.products
+        .filter(p => p.category.toLowerCase() === category.toLowerCase())
+        .sort((a, b) => a.name.localeCompare(b.name));
+    }
   }
 
 
@@ -170,10 +199,4 @@ export class VenueDetailComponent implements OnInit {
     this.modifierGroups = [];
   }
 
-  applyFilter(category: string) {
-    this.currentCategory = category;
-    this.filteredProducts = category === 'all' 
-      ? this.products 
-      : this.products.filter(p => p.category.toLowerCase() === category.toLowerCase());
-  }
 }

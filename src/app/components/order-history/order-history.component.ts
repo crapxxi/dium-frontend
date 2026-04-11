@@ -4,11 +4,13 @@ import { HttpClient } from '@angular/common/http';
 import { OrderResponse } from '../../models/api.models';
 import { environment } from '../../../environments/environment';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-order-history',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './order-history.component.html'
 })
 export class OrderHistoryComponent {

@@ -4,11 +4,13 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'app-create-venue',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
   templateUrl: './create-venue.component.html'
 })
 export class CreateVenueComponent {
@@ -65,7 +67,7 @@ export class CreateVenueComponent {
       type: 'application/json'
     });
 
-    formData.append('venue', venueBlob);
+    formData.append('venueRequest', venueBlob);
     formData.append('image', this.selectedFile);
 
     this.http.post(`${environment.apiUrl}/venues/manage`, formData).subscribe({

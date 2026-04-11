@@ -5,11 +5,12 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-register-owner',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, TranslateModule],
   templateUrl: './register-owner.component.html'
 })
 export class AdminRegisterOwnerComponent {
@@ -42,8 +43,7 @@ export class AdminRegisterOwnerComponent {
 
     const payload = {
       ...this.registerForm.value,
-      phone: cleanPhone,
-      role: 'VENUE_OWNER'
+      phone: cleanPhone
     };
 
     this.http.post(`${environment.apiUrl}/auth/venue-register`, payload).subscribe({
