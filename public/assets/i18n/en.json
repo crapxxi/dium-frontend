@@ -177,7 +177,11 @@
     "ADDED_LABEL": "Added",
     "OPTION_PLACE": "Option...",
     "SAVE_CAT": "Save Category",
-    "AUTO_SAVE_NOTE": "Changes are applied immediately"
+    "AUTO_SAVE_NOTE": "Changes are applied immediately",
+    "REGISTER_TITLE": "Venue Registration",
+    "REGISTER_SUBTITLE": "Add a new spot and open pre-orders for students",
+    "ADMIN_RESTRICTION_NOTE": "Access restricted. Only for Dium ecosystem administrators.",
+    "ADMIN_REGISTER_BUTTON": "Register"
   },
   "ORDERS": {
   "SEARCHING": "Looking for receipts...",
