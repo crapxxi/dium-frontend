@@ -14,6 +14,8 @@ import { SupportComponent } from './components/support/support.component';
 import { LandingComponent } from './components/landing-component/landing.component';
 import { guestGuard } from './guards/guest.guard';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
+import { ActivateComponent } from './components/activate/activate.component';
+import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent,canActivate: [guestGuard] },
@@ -30,5 +32,8 @@ export const routes: Routes = [
   { path: 'manage-venue/:id', component:ManageVenueComponent},
   { path: 'support', component:SupportComponent},
   {path: 'order-history', component:OrderHistoryComponent},
+  {path: 'activate', component: ActivateComponent},
+  { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: '**', redirectTo: 'venues' }
 ];

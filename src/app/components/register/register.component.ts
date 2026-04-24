@@ -5,7 +5,6 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { TranslateModule } from '@ngx-translate/core';
 
-
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -33,6 +32,7 @@ export class RegisterComponent {
   
     if (this.registerData.password !== this.registerData.confirmPassword) {
       this.errorMessage = 'Пароли не совпадают';
+      this.isLoading = false;
       return;
     }
   
@@ -48,6 +48,7 @@ export class RegisterComponent {
   
     if (cleanPhone.length !== 11) {
       this.errorMessage = 'Введите корректный номер (11 цифр)';
+      this.isLoading = false;
       return;
     }
   
@@ -57,12 +58,10 @@ export class RegisterComponent {
       password: this.registerData.password
     };
   
-    console.log('Отправка на регистрацию:', finalData);
-  
     this.authService.register(finalData).subscribe({
       next: () => {
         this.isLoading = false;
-        this.router.navigate(['/login']);
+        this.router.navigate(['/activate'], { queryParams: { phone: cleanPhone } });
       },
       error: (err) => {
         console.error(err);

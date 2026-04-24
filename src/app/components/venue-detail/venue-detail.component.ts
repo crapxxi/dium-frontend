@@ -65,13 +65,12 @@ export class VenueDetailComponent implements OnInit {
             canDeliver: this.venue?.canDeliver || false
           }))
           .sort((a, b) => {
+            if (a.inStock !== b.inStock) return a.inStock ? -1 : 1;
+
             const categoryOrder: { [key: string]: number } = { 'FOOD': 1, 'DRINK': 2 };
             const orderA = categoryOrder[a.category] || 3;
             const orderB = categoryOrder[b.category] || 3;
-
-            if (orderA !== orderB) {
-              return orderA - orderB;
-            }
+            if (orderA !== orderB) return orderA - orderB;
 
             return a.name.localeCompare(b.name);
           });
@@ -90,7 +89,10 @@ export class VenueDetailComponent implements OnInit {
     } else {
       this.filteredProducts = this.products
         .filter(p => p.category.toLowerCase() === category.toLowerCase())
-        .sort((a, b) => a.name.localeCompare(b.name));
+        .sort((a, b) => {
+          if (a.inStock !== b.inStock) return a.inStock ? -1 : 1;
+          return a.name.localeCompare(b.name);
+        });
     }
   }
 

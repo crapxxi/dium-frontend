@@ -6,7 +6,6 @@ import { RouterLink, Router } from '@angular/router';
 import { LoginRequest } from '../../models/api.models';
 import { TranslateModule } from '@ngx-translate/core';
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -28,7 +27,11 @@ export class LoginComponent {
   });
 
   onSubmit() {
-    if (this.loginForm.invalid) return;
+    if (this.loginForm.invalid) {
+      this.loginForm.markAllAsTouched();
+      this.errorMessage = 'Заполните номер телефона и пароль';
+      return;
+    }
 
     this.errorMessage = '';
     this.isLoading = true;
@@ -57,10 +60,8 @@ export class LoginComponent {
       password: rawPassword
     };
 
-    console.log('Отправка на вход:', dataToSubmit);
-
     this.authService.login(dataToSubmit).subscribe({
-      next: (response) => {
+      next: () => {
         this.isLoading = false;
         this.router.navigate(['/venues']);
       },
@@ -68,10 +69,17 @@ export class LoginComponent {
         this.isLoading = false;
         console.error('Ошибка при входе:', err);
     
-        if (err.status === 403 || err.status === 401) {
+        const serverMessage = err.error?.message || '';
+
+        if (serverMessage.includes('ACCOUNT_LOCKED')) {
+          this.router.navigate(['/activate'], { queryParams: { phone: cleanPhone } });
+          return;
+        }
+
+        if (err.status === 403 || err.status === 401 || err.status === 400) {
           this.errorMessage = 'Неверный номер телефона или пароль';
         } else {
-          this.errorMessage = err.error?.message || 'Ошибка сервера. Попробуйте позже';
+          this.errorMessage = serverMessage || 'Ошибка сервера. Попробуйте позже';
         }
         
         this.cdr.detectChanges();
