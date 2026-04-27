@@ -54,7 +54,16 @@ export class VenueListComponent implements OnInit {
       })
     ).subscribe({
       next: (data) => {
-        this.venues = data as VenueWithProducts[];
+        const ranked = (v: VenueWithProducts): number => {
+          if (v.isWorking && v.hasItemsInStock) return 0;
+          if (!v.isWorking) return 1;
+          return 2; // sold out
+        };
+        this.venues = (data as VenueWithProducts[]).sort((a, b) => {
+          const diff = ranked(a) - ranked(b);
+          if (diff !== 0) return diff;
+          return a.name.localeCompare(b.name);
+        });
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Ошибка загрузки:', err)
