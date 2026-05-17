@@ -1,5 +1,5 @@
 import { Component, signal, inject, PLATFORM_ID } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { isPlatformBrowser } from '@angular/common';
@@ -7,7 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, TranslateModule],
+  imports: [RouterOutlet, RouterLink, HeaderComponent, TranslateModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

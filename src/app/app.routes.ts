@@ -16,6 +16,8 @@ import { guestGuard } from './guards/guest.guard';
 import { OrderHistoryComponent } from './components/order-history/order-history.component';
 import { ActivateComponent } from './components/activate/activate.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
+import { TractionComponent } from './components/traction/traction.component';
+import { AboutComponent } from './components/about/about.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent,canActivate: [guestGuard] },
@@ -35,5 +37,7 @@ export const routes: Routes = [
   {path: 'activate', component: ActivateComponent},
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'traction', component: TractionComponent },
+  { path: 'about', component: AboutComponent },
   { path: '**', redirectTo: 'venues' }
 ];

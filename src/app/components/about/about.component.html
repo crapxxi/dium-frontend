@@ -1,0 +1,178 @@
+<main class="min-h-screen bg-[#FFFBF0] font-sans selection:bg-orange-500 selection:text-white pb-24">
+
+  <!-- ─── HERO ─────────────────────────────────────────────────── -->
+  <section class="px-4 pt-10 pb-6">
+
+    <div class="max-w-3xl mx-auto animate-in fade-in duration-700">
+
+      <!-- Back -->
+      <button routerLink="/"
+        class="inline-flex items-center gap-1.5 text-orange-400 hover:text-orange-600 font-black text-[10px] uppercase tracking-widest mb-6 transition-colors">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        {{ 'ABOUT.BACK' | translate }}
+      </button>
+
+      <!-- Card -->
+      <div class="relative overflow-hidden bg-orange-900 rounded-3xl px-8 py-10 shadow-2xl shadow-orange-900/20">
+        <div class="absolute -top-10 -right-10 w-56 h-56 bg-orange-800 rounded-full opacity-60"></div>
+        <div class="absolute -bottom-8 -left-8 w-40 h-40 bg-orange-700 rounded-full opacity-40"></div>
+
+        <div class="relative text-center">
+          <span class="block text-[10px] font-black uppercase tracking-[0.4em] text-amber-400 mb-4">{{ 'ABOUT.BADGE' | translate }}</span>
+
+          <h1 class="font-black italic uppercase tracking-tighter leading-none mb-5">
+            <span class="block text-3xl md:text-5xl text-white/60 mb-1">{{ 'ABOUT.TITLE_1' | translate }}</span>
+            <span class="block text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-400">{{ 'ABOUT.TITLE_2' | translate }}</span>
+          </h1>
+
+          <div class="w-10 h-[3px] bg-amber-400 rounded-full mx-auto mb-4"></div>
+
+          <p class="text-xs md:text-sm font-semibold text-orange-200 max-w-sm mx-auto leading-relaxed">
+            {{ 'ABOUT.HERO_SUB' | translate }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── О ПРОЕКТЕ ────────────────────────────────────────────── -->
+  <section class="max-w-3xl mx-auto px-4 py-6">
+    <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md p-8 md:p-10">
+      <p class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-400 mb-3">{{ 'ABOUT.PROJECT_LABEL' | translate }}</p>
+      <h2 class="text-2xl md:text-3xl font-black text-orange-900 italic uppercase tracking-tight mb-5">
+        {{ 'ABOUT.PROJECT_TITLE' | translate }}
+      </h2>
+      <p class="text-sm font-semibold text-gray-500 leading-relaxed mb-4">
+        {{ 'ABOUT.PROJECT_P1' | translate }}
+      </p>
+      <p class="text-sm font-semibold text-gray-500 leading-relaxed">
+        {{ 'ABOUT.PROJECT_P2' | translate }}
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── ПРОБЛЕМА → РЕШЕНИЕ ───────────────────────────────────── -->
+  <section class="max-w-3xl mx-auto px-4 py-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md p-7">
+        <div class="w-10 h-10 bg-red-50 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <p class="text-[10px] font-black uppercase tracking-widest text-red-400 mb-2">{{ 'ABOUT.PROBLEM_LABEL' | translate }}</p>
+        <h3 class="text-base font-black text-orange-900 uppercase tracking-tight mb-2">{{ 'ABOUT.PROBLEM_TITLE' | translate }}</h3>
+        <p class="text-xs font-semibold text-gray-400 leading-relaxed">{{ 'ABOUT.PROBLEM_BODY' | translate }}</p>
+      </div>
+
+      <div class="bg-orange-600 rounded-3xl shadow-xl shadow-orange-600/20 p-7">
+        <div class="w-10 h-10 bg-white/20 rounded-2xl flex items-center justify-center mb-4">
+          <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <p class="text-[10px] font-black uppercase tracking-widest text-orange-200 mb-2">{{ 'ABOUT.SOLUTION_LABEL' | translate }}</p>
+        <h3 class="text-base font-black text-white uppercase tracking-tight mb-2">{{ 'ABOUT.SOLUTION_TITLE' | translate }}</h3>
+        <p class="text-xs font-semibold text-orange-100 leading-relaxed">{{ 'ABOUT.SOLUTION_BODY' | translate }}</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── ЦЕННОСТИ ─────────────────────────────────────────────── -->
+  <section class="max-w-3xl mx-auto px-4 py-4">
+    <div class="text-center mb-6">
+      <p class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-400 mb-1">{{ 'ABOUT.VALUES_LABEL' | translate }}</p>
+      <h2 class="text-2xl md:text-3xl font-black text-orange-900 italic uppercase tracking-tight">{{ 'ABOUT.VALUES_TITLE' | translate }}</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md p-6 text-center">
+        <div class="text-3xl mb-3">⚡</div>
+        <h3 class="text-sm font-black text-orange-900 uppercase tracking-tight mb-1.5">{{ 'ABOUT.VAL1_TITLE' | translate }}</h3>
+        <p class="text-xs font-semibold text-gray-400 leading-relaxed">{{ 'ABOUT.VAL1_BODY' | translate }}</p>
+      </div>
+      <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md p-6 text-center">
+        <div class="text-3xl mb-3">🤝</div>
+        <h3 class="text-sm font-black text-orange-900 uppercase tracking-tight mb-1.5">{{ 'ABOUT.VAL2_TITLE' | translate }}</h3>
+        <p class="text-xs font-semibold text-gray-400 leading-relaxed">{{ 'ABOUT.VAL2_BODY' | translate }}</p>
+      </div>
+      <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md p-6 text-center">
+        <div class="text-3xl mb-3">🚀</div>
+        <h3 class="text-sm font-black text-orange-900 uppercase tracking-tight mb-1.5">{{ 'ABOUT.VAL3_TITLE' | translate }}</h3>
+        <p class="text-xs font-semibold text-gray-400 leading-relaxed">{{ 'ABOUT.VAL3_BODY' | translate }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── КОМАНДА ──────────────────────────────────────────────── -->
+  <section class="max-w-3xl mx-auto px-4 py-6">
+    <div class="text-center mb-6">
+      <p class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-400 mb-1">{{ 'ABOUT.TEAM_LABEL' | translate }}</p>
+      <h2 class="text-2xl md:text-3xl font-black text-orange-900 italic uppercase tracking-tight">{{ 'ABOUT.TEAM_TITLE' | translate }}</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <!-- Алихан — CTO -->
+      <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md overflow-hidden">
+        <div class="h-64 w-full overflow-hidden">
+          <img src="/assets/team/alihan.jpg" alt="Туругельдиев Алихан"
+               class="w-full h-full object-cover object-[center_40%]">
+        </div>
+        <div class="p-6">
+          <h3 class="text-base font-black text-orange-900 uppercase tracking-tight">Туругельдиев Алихан</h3>
+          <p class="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-2">{{ 'ABOUT.MEMBER1_ROLE' | translate }}</p>
+          <p class="text-xs font-semibold text-gray-400 leading-relaxed">{{ 'ABOUT.MEMBER1_BIO' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Диас — CEO -->
+      <div class="bg-white rounded-3xl border-2 border-orange-50 shadow-md overflow-hidden">
+        <div class="h-64 w-full overflow-hidden">
+          <img src="/assets/team/dias.jpg" alt="Умбетов Диас"
+               class="w-full h-full object-cover object-[center_60%]">
+        </div>
+        <div class="p-6">
+          <h3 class="text-base font-black text-orange-900 uppercase tracking-tight">Умбетов Диас</h3>
+          <p class="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-2">{{ 'ABOUT.MEMBER2_ROLE' | translate }}</p>
+          <p class="text-xs font-semibold text-gray-400 leading-relaxed">{{ 'ABOUT.MEMBER2_BIO' | translate }}</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── CTA ──────────────────────────────────────────────────── -->
+  <section class="max-w-3xl mx-auto px-4 pt-4">
+    <div class="relative overflow-hidden bg-orange-900 rounded-3xl px-8 py-10 text-center shadow-xl">
+      <div class="absolute -right-12 -top-12 w-48 h-48 bg-orange-700 rounded-full opacity-40"></div>
+      <div class="absolute -left-8 -bottom-8 w-32 h-32 bg-orange-800 rounded-full opacity-50"></div>
+
+      <div class="relative">
+        <h2 class="text-2xl md:text-3xl font-black text-white italic uppercase tracking-tight mb-2">
+          {{ 'ABOUT.CTA_TITLE' | translate }}
+        </h2>
+        <p class="text-xs font-semibold text-orange-300 mb-7 max-w-sm mx-auto leading-relaxed">
+          {{ 'ABOUT.CTA_SUB' | translate }}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <button routerLink="/venues"
+            class="px-8 py-4 bg-orange-500 hover:bg-orange-400 text-white rounded-2xl font-black uppercase text-xs tracking-[0.18em] transition-all active:scale-95">
+            {{ 'ABOUT.CTA_BTN_USER' | translate }}
+          </button>
+          <a href="https://wa.me/77028131494?text=Здравствуйте! Хочу узнать больше о Dium."
+             target="_blank"
+             class="px-8 py-4 bg-white/10 border-2 border-white/20 hover:border-white/40 text-white rounded-2xl font-black uppercase text-xs tracking-[0.18em] transition-all active:scale-95 text-center inline-block">
+            {{ 'ABOUT.CTA_BTN_CONTACT' | translate }}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>

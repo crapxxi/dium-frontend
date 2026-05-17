@@ -4,6 +4,52 @@
   <router-outlet></router-outlet>
 </main>
 
-<footer class="bg-white border-t border-orange-200 py-6 mt-auto container mx-auto px-4 max-w-6xl text-center text-sm text-gray-600">
-  © 2026 Dium. {{ 'FOOTER.TEXT' | translate }}
+<footer class="bg-orange-600 font-sans">
+  <div class="max-w-5xl mx-auto px-6 pt-10 pb-8">
+
+    <!-- Top row -->
+    <div class="flex flex-col gap-8 md:flex-row md:justify-between md:gap-10 mb-8">
+
+      <!-- Brand -->
+      <div>
+        <span class="block font-black italic uppercase text-5xl text-white tracking-tighter leading-none mb-2">Dium</span>
+        <p class="text-xs font-semibold text-orange-100 leading-relaxed max-w-[220px]">{{ 'FOOTER.TEXT' | translate }}</p>
+      </div>
+
+      <!-- Links -->
+      <div class="flex gap-10">
+
+        <div class="flex flex-col gap-2.5">
+          <span class="text-[9px] font-black uppercase tracking-[0.3em] text-orange-200 mb-1">{{ 'FOOTER.NAV_LABEL' | translate }}</span>
+          <a routerLink="/venues"   class="text-xs font-bold text-white/70 hover:text-white transition-colors">{{ 'FOOTER.LINK_VENUES' | translate }}</a>
+          <a routerLink="/about"    class="text-xs font-bold text-white/70 hover:text-white transition-colors">{{ 'FOOTER.LINK_ABOUT' | translate }}</a>
+          <a routerLink="/traction" class="text-xs font-bold text-white/70 hover:text-white transition-colors">{{ 'FOOTER.LINK_TRACTION' | translate }}</a>
+        </div>
+
+        <div class="flex flex-col gap-2.5">
+          <span class="text-[9px] font-black uppercase tracking-[0.3em] text-orange-200 mb-1">{{ 'FOOTER.CONTACT_LABEL' | translate }}</span>
+          <a href="https://wa.me/77028131494" target="_blank"
+             class="inline-flex items-center gap-2 text-xs font-bold text-white/70 hover:text-white transition-colors">
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.828L.057 23.885l6.224-1.635A11.93 11.93 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.002-1.366l-.359-.213-3.695.97.986-3.602-.234-.37A9.818 9.818 0 0 1 2.182 12C2.182 6.57 6.57 2.182 12 2.182S21.818 6.57 21.818 12s-4.388 9.818-9.818 9.818z"/>
+            </svg>
+            WhatsApp
+          </a>
+          <a routerLink="/support"
+             class="text-xs font-bold text-white/70 hover:text-white transition-colors">{{ 'FOOTER.LINK_SUPPORT' | translate }}</a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="h-px bg-white/20 mb-5"></div>
+
+    <!-- Bottom row -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+      <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">© 2026 Dium</span>
+      <span class="text-[10px] font-bold text-white/40 uppercase tracking-widest">Kazakhstan</span>
+    </div>
+
+  </div>
 </footer>
