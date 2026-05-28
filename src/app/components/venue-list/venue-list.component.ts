@@ -57,7 +57,7 @@ export class VenueListComponent implements OnInit {
         const ranked = (v: VenueWithProducts): number => {
           if (v.isWorking && v.hasItemsInStock) return 0;
           if (!v.isWorking) return 1;
-          return 2; // sold out
+          return 2;
         };
         this.venues = (data as VenueWithProducts[]).sort((a, b) => {
           const diff = ranked(a) - ranked(b);

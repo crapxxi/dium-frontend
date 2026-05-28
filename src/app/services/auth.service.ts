@@ -45,14 +45,9 @@ export class AuthService {
       }
       this.expiryTimer = setTimeout(() => this.logout(), msUntilExpiry);
     } catch {
-      // malformed token — let the server reject it
     }
   }
 
-  /**
-   * Логин. Получает токен, ждет скачивания профиля (getMe) и возвращает ответ.
-   * Редирект делает сам компонент (LoginComponent).
-   */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       switchMap(res => {
@@ -66,17 +61,10 @@ export class AuthService {
     );
   }
 
-  /**
-   * Регистрация. Возвращает ответ для последующего перехода на окно ввода кода.
-   */
   register(data: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, data);
   }
 
-  /**
-   * Подтверждение SMS кода. Логика идентична login:
-   * сохраняем токен -> скачиваем данные -> отдаем управление компоненту.
-   */
   activateAccount(phone: string, code: string): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/activate`, null, {
       params: { phone, code }
@@ -92,18 +80,12 @@ export class AuthService {
     );
   }
 
-  /**
-   * Переотправка кода на телефон
-   */
   resendCode(phone: string): Observable<void> {
     return this.http.post<void>(`${this.apiUrl}/resend-code`, null, {
       params: { phone }
     });
   }
 
-  /**
-   * Получение профиля текущего пользователя
-   */
   getMe(): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/me`).pipe(
       tap(user => {
@@ -122,9 +104,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Выход из системы и очистка данных
-   */
   logout() {
     if (this.expiryTimer) {
       clearTimeout(this.expiryTimer);

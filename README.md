@@ -1,60 +1,129 @@
 # Dium
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
+Angular 21 food ordering platform with SSR. Customers browse venues, add items to cart, and pay via Kaspi. Venue owners manage menus and track incoming orders through a kitchen panel.
 
-## Development server
+## Tech stack
 
-To start a local development server, run:
+| Layer | Technology |
+|---|---|
+| Framework | Angular 21 (standalone components) |
+| Rendering | Angular SSR (Express) |
+| Styling | TailwindCSS v4 |
+| i18n | ngx-translate |
+| HTTP | Angular HttpClient + functional interceptor |
+| State | BehaviorSubject / RxJS signals |
+| Auth | JWT (localStorage) with auto-expiry timer |
+| Backend | REST API — `https://dium-backend.onrender.com/api/v1` |
 
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Getting started
 
 ```bash
-ng generate --help
+npm install
+npm start          # dev server at http://localhost:4200
+npm run build      # production build → dist/
+npm run serve:ssr:dium   # run SSR build
 ```
 
-## Building
+Environment files live in `src/environments/`:
 
-To build the project run:
+| File | `apiUrl` |
+|---|---|
+| `environment.development.ts` | `http://localhost:8080/api/v1` |
+| `environment.ts` | `https://dium-backend.onrender.com/api/v1` |
+
+## Routes
+
+| Path | Component | Guard |
+|---|---|---|
+| `/` | LandingComponent | guestGuard |
+| `/venues` | VenueListComponent | — |
+| `/venue/:id` | VenueDetailComponent | — |
+| `/cart` | CartComponent | — |
+| `/orders` | OrdersComponent | — |
+| `/order-history` | OrderHistoryComponent | — |
+| `/login` | LoginComponent | guestGuard |
+| `/register` | RegisterComponent | — |
+| `/activate` | ActivateComponent | — |
+| `/forgot-password` | ForgotPasswordComponent | guestGuard |
+| `/profile` | ProfileComponent | — |
+| `/kitchen` | KitchenPanelComponent | — |
+| `/manage-venue/:id` | ManageVenueComponent | — |
+| `/create-venue` | CreateVenueComponent | — |
+| `/admin` | AdminRegisterOwnerComponent | — |
+| `/support` | SupportComponent | — |
+| `/traction` | TractionComponent | — |
+| `/about` | AboutComponent | — |
+| `/**` | → `/venues` | — |
+
+## User roles
+
+| Role | Access |
+|---|---|
+| `CLIENT` | Browse venues, cart, orders, profile |
+| `VENUE_OWNER` | All CLIENT routes + kitchen panel + venue management |
+| `ADMIN` | All routes + register new venue owners |
+
+## Architecture
+
+```
+src/
+├── app/
+│   ├── components/       # feature components (standalone)
+│   ├── services/
+│   │   ├── auth.service.ts   # JWT lifecycle, user state stream
+│   │   └── cart.service.ts   # cart state, checkout, delivery fee
+│   ├── interceptors/
+│   │   └── auth.interceptor.ts  # attaches Bearer token; skips i18n assets
+│   ├── guards/
+│   │   └── guest.guard.ts    # redirects authenticated users away from auth pages
+│   └── models/
+│       └── api.models.ts     # all shared TypeScript interfaces
+├── environments/             # environment configs
+├── server.ts                 # Express SSR entry point
+└── main.ts / main.server.ts  # bootstrap
+```
+
+## Key flows
+
+### Authentication
+1. `POST /auth/register` → SMS sent to phone
+2. `POST /auth/activate?phone&code` → JWT returned, stored in localStorage
+3. `authInterceptor` attaches `Authorization: Bearer <token>` to every API request
+4. JWT expiry is decoded client-side; `setTimeout` calls `logout()` at expiry
+
+### Cart & checkout
+- Cart persists in localStorage across sessions
+- Cart is scoped to a single venue — adding a product from a different venue prompts a clear
+- Delivery mode toggles a fee from the venue's `deliveryPrice` field
+- `CartService.checkout()` posts an `OrderRequest` to `/orders`
+- After placing the order, the user pays via a Kaspi redirect URL fetched from `/orders/:id/kaspi-url`
+
+### Venue list ordering
+Venues are sorted by: **open + in stock** → **closed** → **open but sold out**, then alphabetically within each group.
+
+## API models
+
+| Interface | Description |
+|---|---|
+| `User` | Authenticated user (phone, name, role, paymentFrom) |
+| `Venue` | Restaurant/cafe metadata |
+| `Product` | Menu item with modifiers flag |
+| `Modifier` / `ModifierGroup` | Product add-ons (e.g. sizes, toppings) |
+| `CartItem` | `Product` extended with count and selected modifiers |
+| `OrderRequest` / `OrderResponse` | Order create payload and server response |
+
+## Order statuses
+
+| Status | Meaning |
+|---|---|
+| `PENDING` | Awaiting payment |
+| `PREPARING` | Kitchen accepted, cooking |
+| `READY` | Ready for pickup |
+| `COMPLETED` | Picked up by customer |
+| `CANCELLED` | Cancelled |
+
+## Running tests
 
 ```bash
-ng build
+npm test   # Vitest
 ```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-# dium-frontend

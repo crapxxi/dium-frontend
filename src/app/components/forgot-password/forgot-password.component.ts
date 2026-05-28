@@ -13,7 +13,6 @@ import { AuthService } from '../../services/auth.service';
 export class ForgotPasswordComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  // ДОБАВЛЕНО: Инжектим ChangeDetectorRef
   private cdr = inject(ChangeDetectorRef);
 
   step: 1 | 2 = 1; 
@@ -48,13 +47,13 @@ export class ForgotPasswordComponent {
       next: () => {
         this.isLoading = false;
         this.step = 2;
-        this.cdr.detectChanges(); // ДОБАВЛЕНО
+        this.cdr.detectChanges();
       },
       error: (err) => {
-        console.error('Ошибка запроса кода:', err); // ДОБАВЛЕНО для дебага
+        console.error('Ошибка запроса кода:', err);
         this.isLoading = false;
         this.errorMessage = err.error?.message || 'Пользователь с таким номером не найден';
-        this.cdr.detectChanges(); // ДОБАВЛЕНО
+        this.cdr.detectChanges();
       }
     });
   }
