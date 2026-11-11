@@ -18,6 +18,7 @@ import { ActivateComponent } from './components/activate/activate.component';
 import { ForgotPasswordComponent } from './components/forgot-password/forgot-password.component';
 import { TractionComponent } from './components/traction/traction.component';
 import { AboutComponent } from './components/about/about.component';
+import { TwoFactorVerifyComponent } from './components/two-factor-verify/two-factor-verify.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent,canActivate: [guestGuard] },
@@ -35,6 +36,7 @@ export const routes: Routes = [
   { path: 'support', component:SupportComponent},
   {path: 'order-history', component:OrderHistoryComponent},
   {path: 'activate', component: ActivateComponent},
+  { path: '2fa-verify', component: TwoFactorVerifyComponent, canActivate: [guestGuard] },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'forgot-password', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'traction', component: TractionComponent },

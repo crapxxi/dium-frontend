@@ -5,6 +5,8 @@ import { AuthService } from '../../services/auth.service';
 import { RouterLink, Router } from '@angular/router';
 import { LoginRequest } from '../../models/api.models';
 import { TranslateModule } from '@ngx-translate/core';
+import { normalizeKzPhone } from '../../utils/phone';
+import { apiErrorMessage } from '../../utils/http-error';
 
 @Component({
   selector: 'app-login',
@@ -17,8 +19,9 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
-  
-  public errorMessage = ''; 
+
+  /** Ключ перевода либо готовый текст ошибки от сервера (в шаблоне проходит через translate). */
+  public errorMessage = '';
   public isLoading = false;
 
   loginForm = this.fb.group({
@@ -29,29 +32,21 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
-      this.errorMessage = 'Заполните номер телефона и пароль';
+      this.errorMessage = 'ERRORS.FILL_LOGIN';
       return;
     }
 
     this.errorMessage = '';
     this.isLoading = true;
-    
+
     const rawPhone = this.loginForm.get('phone')?.value || '';
     const rawPassword = this.loginForm.get('password')?.value || '';
 
-    let cleanPhone = rawPhone.replace(/\D/g, '');
+    const cleanPhone = normalizeKzPhone(rawPhone);
 
-    if (cleanPhone.startsWith('8') && cleanPhone.length === 11) {
-      cleanPhone = '7' + cleanPhone.substring(1);
-    }
-    
-    if (cleanPhone.length === 10) {
-      cleanPhone = '7' + cleanPhone;
-    }
-
-    if (cleanPhone.length !== 11) {
+    if (!cleanPhone) {
       this.isLoading = false;
-      this.errorMessage = 'Введите корректный номер (11 цифр)';
+      this.errorMessage = 'ERRORS.PHONE_INVALID';
       return;
     }
 
@@ -61,15 +56,20 @@ export class LoginComponent {
     };
 
     this.authService.login(dataToSubmit).subscribe({
-      next: () => {
+      next: (res) => {
         this.isLoading = false;
+        if (res.twoFactorRequired) {
+          // Пароль верный, но JWT ещё не выдан — нужен код второго фактора
+          this.router.navigate(['/2fa-verify']);
+          return;
+        }
         this.router.navigate(['/venues']);
       },
       error: (err) => {
         this.isLoading = false;
         console.error('Ошибка при входе:', err);
-    
-        const serverMessage = err.error?.message || '';
+
+        const serverMessage: string = err.error?.message || '';
 
         if (serverMessage.includes('ACCOUNT_LOCKED')) {
           this.router.navigate(['/activate'], { queryParams: { phone: cleanPhone } });
@@ -77,11 +77,12 @@ export class LoginComponent {
         }
 
         if (err.status === 403 || err.status === 401 || err.status === 400) {
-          this.errorMessage = 'Неверный номер телефона или пароль';
+          this.errorMessage = 'ERRORS.WRONG_CREDENTIALS';
         } else {
-          this.errorMessage = serverMessage || 'Ошибка сервера. Попробуйте позже';
+          // 429 (лимит запросов), 502 (код не отправлен) и т.п. — показываем текст сервера
+          this.errorMessage = apiErrorMessage(err, 'ERRORS.SERVER');
         }
-        
+
         this.cdr.detectChanges();
       }
     });

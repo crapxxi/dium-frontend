@@ -1,0 +1,308 @@
+<div class="bg-white rounded-[32px] p-6 sm:p-8 shadow-sm border-2 border-orange-50">
+
+  <!-- Заголовок раздела -->
+  <div class="flex items-center justify-between gap-3 mb-5">
+    <div class="flex items-center gap-4 min-w-0">
+      <div class="w-12 h-12 shrink-0 bg-orange-100 rounded-2xl flex items-center justify-center text-xl">🔐</div>
+      <div class="text-left min-w-0">
+        <h3 class="font-black text-slate-900 uppercase text-xs tracking-tight">{{ 'SECURITY.TITLE' | translate }}</h3>
+        <p class="text-[9px] text-slate-400 font-bold uppercase italic mt-0.5">{{ 'SECURITY.SUBTITLE' | translate }}</p>
+      </div>
+    </div>
+
+    <span *ngIf="status() as s"
+          class="shrink-0 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border"
+          [ngClass]="s.enabled || s.required ? 'bg-green-50 text-green-600 border-green-100' : 'bg-gray-50 text-gray-400 border-gray-100'">
+      {{ (s.enabled || s.required ? 'SECURITY.STATUS_ON' : 'SECURITY.STATUS_OFF') | translate }}
+    </span>
+  </div>
+
+  <!-- Сообщения -->
+  <div *ngIf="errorMessage()" role="alert"
+       class="mb-5 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+    <div class="bg-red-500 text-white rounded-full p-1 shadow-sm shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+    <p class="text-sm font-bold text-red-600 leading-tight text-left">{{ errorMessage() | translate }}</p>
+  </div>
+
+  <div *ngIf="infoMessage() && !errorMessage()" role="status"
+       class="mb-5 p-4 bg-green-50 border border-green-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+    <div class="bg-green-500 text-white rounded-full p-1 shadow-sm shrink-0">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+    </div>
+    <p class="text-sm font-bold text-green-700 leading-tight text-left">{{ infoMessage() | translate }}</p>
+  </div>
+
+  <!-- ─── Загрузка ─────────────────────────────────────────────── -->
+  <div *ngIf="view() === 'loading'" class="h-20 bg-gray-100 rounded-2xl animate-pulse"></div>
+
+  <!-- ─── Обзор ────────────────────────────────────────────────── -->
+  <ng-container *ngIf="view() === 'overview'">
+
+    <div *ngIf="loadFailed()" class="text-center">
+      <p class="text-sm font-semibold text-gray-500 mb-4">{{ 'SECURITY.ERR_LOAD' | translate }}</p>
+      <button type="button" (click)="loadStatus()"
+              class="px-6 py-2 rounded-full border-2 border-orange-100 text-orange-600 text-[11px] font-black uppercase tracking-widest hover:bg-orange-50 transition-all">
+        {{ 'SECURITY.RETRY' | translate }}
+      </button>
+    </div>
+
+    <ng-container *ngIf="!loadFailed() && status() as s">
+
+      <p class="text-sm font-semibold text-gray-500 leading-relaxed text-left mb-4">
+        {{ 'SECURITY.DESC' | translate }}
+      </p>
+
+      <!-- Обязательная 2FA для ADMIN / VENUE_OWNER -->
+      <div *ngIf="s.required" class="mb-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl text-left">
+        <p class="text-xs font-bold text-amber-800 leading-relaxed">
+          {{ (s.enabled ? 'SECURITY.REQUIRED_NOTE' : 'SECURITY.REQUIRED_NOTE_DEFAULT') | translate }}
+        </p>
+      </div>
+
+      <!-- 2FA включена -->
+      <ng-container *ngIf="s.enabled">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+          <div class="p-4 bg-orange-50/50 border border-orange-100 rounded-2xl text-left">
+            <p class="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-1">{{ 'SECURITY.METHOD_LABEL' | translate }}</p>
+            <p class="text-sm font-black text-orange-900">{{ 'TWO_FA.METHOD_' + s.method | translate }}</p>
+          </div>
+          <div class="p-4 bg-orange-50/50 border border-orange-100 rounded-2xl text-left">
+            <p class="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-1">{{ 'SECURITY.BACKUP_LABEL' | translate }}</p>
+            <p class="text-sm font-black" [ngClass]="s.backupCodesLeft > 2 ? 'text-orange-900' : 'text-red-500'">
+              {{ 'SECURITY.BACKUP_LEFT' | translate: { count: s.backupCodesLeft } }}
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <button type="button" (click)="startSetup(otherMethod())" [disabled]="busy()"
+                  class="w-full p-4 bg-white border-2 border-orange-100 text-orange-600 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-orange-50 transition-all active:scale-[0.98] disabled:opacity-50">
+            {{ 'SECURITY.SWITCH_TO_' + otherMethod() | translate }}
+          </button>
+          <button type="button" (click)="openRegenerate()" [disabled]="busy()"
+                  class="w-full p-4 bg-white border-2 border-orange-100 text-orange-600 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-orange-50 transition-all active:scale-[0.98] disabled:opacity-50">
+            {{ 'SECURITY.REGENERATE' | translate }}
+          </button>
+          <button type="button" (click)="openDisable()" [disabled]="busy()"
+                  class="w-full p-4 bg-red-50 text-red-600 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-red-100 transition-all active:scale-[0.98] disabled:opacity-50">
+            {{ 'SECURITY.DISABLE' | translate }}
+          </button>
+        </div>
+      </ng-container>
+
+      <!-- 2FA выключена -->
+      <div *ngIf="!s.enabled" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button type="button" (click)="startSetup('TOTP')" [disabled]="busy()"
+                class="p-5 bg-orange-600 text-white rounded-2xl font-bold shadow-lg shadow-orange-100 hover:bg-orange-500 transition-all active:scale-[0.98] text-left disabled:opacity-50">
+          <span class="block text-2xl mb-2">📱</span>
+          <span class="block text-sm font-black leading-tight">{{ 'SECURITY.ENABLE_TOTP' | translate }}</span>
+          <span class="block text-[10px] text-orange-100 font-bold uppercase tracking-wider mt-1">{{ 'SECURITY.ENABLE_TOTP_SUB' | translate }}</span>
+        </button>
+        <button type="button" (click)="startSetup('WHATSAPP')" [disabled]="busy()"
+                class="p-5 bg-white border-2 border-orange-100 text-orange-600 rounded-2xl font-bold hover:bg-orange-50 transition-all active:scale-[0.98] text-left disabled:opacity-50">
+          <span class="block text-2xl mb-2">💬</span>
+          <span class="block text-sm font-black leading-tight">{{ 'SECURITY.ENABLE_WHATSAPP' | translate }}</span>
+          <span class="block text-[10px] text-orange-400 font-bold uppercase tracking-wider mt-1">{{ 'SECURITY.ENABLE_WHATSAPP_SUB' | translate }}</span>
+        </button>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- ─── Настройка способа ────────────────────────────────────── -->
+  <ng-container *ngIf="view() === 'setup' && setup() as st">
+
+    <!-- TOTP: QR-код и секрет -->
+    <div *ngIf="st.method === 'TOTP'" class="text-left">
+      <h4 class="text-base font-black text-orange-900 uppercase tracking-tight mb-4">{{ 'SECURITY.SETUP_TOTP_TITLE' | translate }}</h4>
+
+      <ol class="space-y-4 mb-5">
+        <li class="flex gap-3">
+          <span class="w-6 h-6 shrink-0 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-[11px] font-black">1</span>
+          <p class="text-sm font-semibold text-gray-500 leading-relaxed">{{ 'SECURITY.SETUP_TOTP_STEP1' | translate }}</p>
+        </li>
+        <li class="flex gap-3">
+          <span class="w-6 h-6 shrink-0 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-[11px] font-black">2</span>
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-semibold text-gray-500 leading-relaxed mb-3">{{ 'SECURITY.SETUP_TOTP_STEP2' | translate }}</p>
+
+            <div class="flex justify-center mb-3" *ngIf="st.qrCodeDataUri">
+              <img [src]="st.qrCodeDataUri" [alt]="'SECURITY.QR_ALT' | translate" width="200" height="200"
+                   class="w-48 h-48 sm:w-52 sm:h-52 rounded-2xl border-4 border-orange-50 bg-white">
+            </div>
+
+            <p class="text-[10px] font-black uppercase tracking-widest text-orange-400 mb-1">{{ 'SECURITY.SECRET_LABEL' | translate }}</p>
+            <div class="flex items-stretch gap-2">
+              <code class="flex-1 min-w-0 px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-xs font-mono font-bold text-gray-700 break-all select-all">{{ st.secret }}</code>
+              <button type="button" (click)="copySecret()"
+                      class="shrink-0 px-3 rounded-xl border-2 border-orange-100 text-orange-600 text-[10px] font-black uppercase tracking-wider hover:bg-orange-50 transition-all">
+                {{ (secretCopied() ? 'SECURITY.COPIED' : 'SECURITY.COPY') | translate }}
+              </button>
+            </div>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="w-6 h-6 shrink-0 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-[11px] font-black">3</span>
+          <p class="text-sm font-semibold text-gray-500 leading-relaxed">{{ 'SECURITY.SETUP_TOTP_STEP3' | translate }}</p>
+        </li>
+      </ol>
+    </div>
+
+    <!-- WhatsApp: код уже отправлен -->
+    <div *ngIf="st.method === 'WHATSAPP'" class="text-left mb-5">
+      <h4 class="text-base font-black text-orange-900 uppercase tracking-tight mb-2">{{ 'SECURITY.SETUP_WA_TITLE' | translate }}</h4>
+      <p class="text-sm font-semibold text-gray-500 leading-relaxed">{{ 'SECURITY.SETUP_WA_SUB' | translate }}</p>
+    </div>
+
+    <form (submit)="$event.preventDefault(); confirmEnable()">
+      <input [value]="code()" (input)="onCodeInput($event)"
+             type="text" inputmode="numeric" autocomplete="one-time-code"
+             [attr.maxlength]="codeLength"
+             [attr.aria-label]="'OTP.CODE_LABEL' | translate"
+             placeholder="000000"
+             class="w-full h-16 text-center text-2xl sm:text-3xl font-black tracking-[0.5rem] sm:tracking-[0.7rem] pl-[0.5rem] sm:pl-[0.7rem] border-4 border-gray-50 bg-gray-50/50 rounded-2xl focus:border-orange-500 focus:bg-white focus:ring-0 outline-none transition-all text-gray-800 placeholder:text-gray-200 mb-4"
+             [disabled]="busy()">
+
+      <div *ngIf="st.method === 'WHATSAPP'" class="flex flex-col items-center gap-2 mb-4">
+        <button type="button" (click)="resendSetupCode()"
+                [disabled]="countdown.seconds() > 0 || isSending()"
+                class="text-[11px] font-black uppercase tracking-widest transition-all px-5 py-1.5 rounded-full border-2"
+                [ngClass]="countdown.seconds() > 0 ? 'text-gray-400 border-transparent' : 'text-orange-600 border-orange-100 hover:bg-orange-50'">
+          {{ 'OTP.RESEND' | translate }}
+        </button>
+        <p *ngIf="countdown.seconds() > 0" class="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+          {{ 'OTP.RESEND_IN' | translate: { sec: countdown.seconds() } }}
+        </p>
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row gap-3">
+        <button type="button" (click)="backToOverview()" [disabled]="busy()"
+                class="flex-1 p-4 bg-gray-50 text-gray-500 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-gray-100 transition-all">
+          {{ 'SECURITY.CANCEL' | translate }}
+        </button>
+        <button type="submit" [disabled]="!codeReady() || busy()"
+                class="flex-1 p-4 bg-gradient-to-r from-orange-600 to-[#FF6B00] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-200/50 transition-all active:scale-95 disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none flex items-center justify-center gap-2">
+          <div *ngIf="busy()" class="animate-spin h-4 w-4 border-2 border-white/40 border-t-white rounded-full"></div>
+          {{ 'SECURITY.CONFIRM_ENABLE' | translate }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+
+  <!-- ─── Резервные коды (показываются один раз) ───────────────── -->
+  <ng-container *ngIf="view() === 'backup-codes'">
+    <div class="text-left">
+      <h4 class="text-base font-black text-orange-900 uppercase tracking-tight mb-2">{{ 'SECURITY.BACKUP_TITLE' | translate }}</h4>
+      <div class="mb-4 p-4 bg-amber-50 border border-amber-100 rounded-2xl">
+        <p class="text-xs font-bold text-amber-800 leading-relaxed">{{ 'SECURITY.BACKUP_WARNING' | translate }}</p>
+      </div>
+
+      <ul class="grid grid-cols-1 min-[380px]:grid-cols-2 gap-2 mb-5">
+        <li *ngFor="let backupCode of backupCodes()"
+            class="px-3 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-center text-sm font-mono font-black text-gray-800 tracking-wider select-all">
+          {{ backupCode }}
+        </li>
+      </ul>
+
+      <div class="grid grid-cols-2 gap-3 mb-3">
+        <button type="button" (click)="copyBackupCodes()"
+                class="p-4 bg-white border-2 border-orange-100 text-orange-600 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-orange-50 transition-all active:scale-[0.98]">
+          {{ (copied() ? 'SECURITY.COPIED' : 'SECURITY.COPY') | translate }}
+        </button>
+        <button type="button" (click)="downloadBackupCodes()"
+                class="p-4 bg-white border-2 border-orange-100 text-orange-600 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-orange-50 transition-all active:scale-[0.98]">
+          {{ 'SECURITY.DOWNLOAD' | translate }}
+        </button>
+      </div>
+      <button type="button" (click)="backToOverview('SECURITY.ENABLED_OK')"
+              class="w-full p-4 bg-gradient-to-r from-orange-600 to-[#FF6B00] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-200/50 transition-all active:scale-95">
+        {{ 'SECURITY.BACKUP_DONE' | translate }}
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- ─── Перевыпуск резервных кодов ───────────────────────────── -->
+  <ng-container *ngIf="view() === 'regenerate'">
+    <form (submit)="$event.preventDefault(); confirmRegenerate()" class="text-left">
+      <h4 class="text-base font-black text-orange-900 uppercase tracking-tight mb-2">{{ 'SECURITY.REGENERATE' | translate }}</h4>
+      <p class="text-sm font-semibold text-gray-500 leading-relaxed mb-4">{{ 'SECURITY.REGENERATE_SUB' | translate }}</p>
+
+      <label class="block text-sm font-bold text-gray-700 mb-2 ml-1" for="regen-password">{{ 'SECURITY.PASSWORD_LABEL' | translate }}</label>
+      <input id="regen-password" type="password" autocomplete="current-password"
+             [value]="password()" (input)="onPasswordInput($event)"
+             class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-100 bg-gray-50/50 focus:bg-white focus:border-orange-500 focus:ring-0 outline-none transition-all font-medium text-gray-800 mb-4"
+             placeholder="••••••••">
+
+      <div class="flex flex-col-reverse sm:flex-row gap-3">
+        <button type="button" (click)="backToOverview()" [disabled]="busy()"
+                class="flex-1 p-4 bg-gray-50 text-gray-500 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-gray-100 transition-all">
+          {{ 'SECURITY.CANCEL' | translate }}
+        </button>
+        <button type="submit" [disabled]="!password() || busy()"
+                class="flex-1 p-4 bg-gradient-to-r from-orange-600 to-[#FF6B00] text-white rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg shadow-orange-200/50 transition-all active:scale-95 disabled:from-gray-300 disabled:to-gray-300 disabled:shadow-none flex items-center justify-center gap-2">
+          <div *ngIf="busy()" class="animate-spin h-4 w-4 border-2 border-white/40 border-t-white rounded-full"></div>
+          {{ 'SECURITY.REGENERATE_CONFIRM' | translate }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+
+  <!-- ─── Отключение 2FA: пароль + код ─────────────────────────── -->
+  <ng-container *ngIf="view() === 'disable'">
+    <form (submit)="$event.preventDefault(); confirmDisable()" class="text-left">
+      <h4 class="text-base font-black text-orange-900 uppercase tracking-tight mb-2">{{ 'SECURITY.DISABLE_TITLE' | translate }}</h4>
+      <p class="text-sm font-semibold text-gray-500 leading-relaxed mb-4">
+        {{ (status()?.required ? 'SECURITY.DISABLE_SUB_REQUIRED' : 'SECURITY.DISABLE_SUB') | translate }}
+      </p>
+
+      <label class="block text-sm font-bold text-gray-700 mb-2 ml-1" for="disable-password">{{ 'SECURITY.PASSWORD_LABEL' | translate }}</label>
+      <input id="disable-password" type="password" autocomplete="current-password"
+             [value]="password()" (input)="onPasswordInput($event)"
+             class="w-full px-4 py-3.5 rounded-xl border-2 border-gray-100 bg-gray-50/50 focus:bg-white focus:border-orange-500 focus:ring-0 outline-none transition-all font-medium text-gray-800 mb-4"
+             placeholder="••••••••">
+
+      <label class="block text-sm font-bold text-gray-700 mb-2 ml-1" for="disable-code">
+        {{ (useBackupCode() ? 'TWO_FA.BACKUP_LABEL' : (currentMethod() === 'TOTP' ? 'SECURITY.CODE_FROM_APP' : 'SECURITY.CODE_FROM_WHATSAPP')) | translate }}
+      </label>
+      <input id="disable-code" [value]="code()" (input)="onCodeInput($event)"
+             type="text" [attr.inputmode]="useBackupCode() ? 'text' : 'numeric'" autocomplete="off" spellcheck="false"
+             [attr.maxlength]="useBackupCode() ? 11 : codeLength"
+             [placeholder]="useBackupCode() ? 'XXXXX-XXXXX' : '000000'"
+             class="w-full h-14 text-center text-xl sm:text-2xl font-black font-mono tracking-[0.3rem] border-2 border-gray-100 bg-gray-50/50 rounded-xl focus:border-orange-500 focus:bg-white focus:ring-0 outline-none transition-all text-gray-800 placeholder:text-gray-200 mb-3"
+             [disabled]="busy()">
+
+      <div class="flex flex-col items-center gap-2 mb-4">
+        <ng-container *ngIf="currentMethod() === 'WHATSAPP' && !useBackupCode()">
+          <button type="button" (click)="sendDisableCode()"
+                  [disabled]="countdown.seconds() > 0 || isSending()"
+                  class="text-[11px] font-black uppercase tracking-widest transition-all px-5 py-1.5 rounded-full border-2 flex items-center gap-2"
+                  [ngClass]="countdown.seconds() > 0 ? 'text-gray-400 border-transparent' : 'text-orange-600 border-orange-100 hover:bg-orange-50'">
+            <div *ngIf="isSending()" class="w-3 h-3 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+            {{ (codeSent() ? 'OTP.RESEND' : 'TWO_FA.SEND_CODE') | translate }}
+          </button>
+          <p *ngIf="countdown.seconds() > 0" class="text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+            {{ 'OTP.RESEND_IN' | translate: { sec: countdown.seconds() } }}
+          </p>
+        </ng-container>
+
+        <button type="button" (click)="toggleDisableBackupCode()"
+                class="text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-orange-600 transition-colors underline underline-offset-4 decoration-dotted">
+          {{ (useBackupCode() ? 'TWO_FA.USE_CODE' : 'TWO_FA.USE_BACKUP') | translate }}
+        </button>
+      </div>
+
+      <div class="flex flex-col-reverse sm:flex-row gap-3">
+        <button type="button" (click)="backToOverview()" [disabled]="busy()"
+                class="flex-1 p-4 bg-gray-50 text-gray-500 rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-gray-100 transition-all">
+          {{ 'SECURITY.CANCEL' | translate }}
+        </button>
+        <button type="submit" [disabled]="!password() || !disableCodeReady() || busy()"
+                class="flex-1 p-4 bg-red-500 text-white rounded-2xl font-black text-xs uppercase tracking-wider hover:bg-red-600 transition-all active:scale-95 disabled:bg-gray-300 flex items-center justify-center gap-2">
+          <div *ngIf="busy()" class="animate-spin h-4 w-4 border-2 border-white/40 border-t-white rounded-full"></div>
+          {{ 'SECURITY.DISABLE' | translate }}
+        </button>
+      </div>
+    </form>
+  </ng-container>
+</div>

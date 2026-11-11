@@ -2,7 +2,17 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, throwError, of } from 'rxjs';
 import { catchError, shareReplay, tap, switchMap, map } from 'rxjs/operators';
-import { User, LoginRequest, AuthResponse } from '../models/api.models';
+import {
+  User,
+  LoginRequest,
+  AuthResponse,
+  PendingTwoFactor,
+  TwoFactorMethod,
+  TwoFactorCodeType,
+  TwoFactorStatus,
+  TwoFactorSetupResponse,
+  BackupCodesResponse,
+} from '../models/api.models';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from './cart.service';
@@ -15,6 +25,7 @@ export class AuthService {
   private router = inject(Router);
   private cartService = inject(CartService);
   private apiUrl = `${environment.apiUrl}/auth`;
+  private readonly pendingTwoFactorKey = 'dium_2fa_pending';
 
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -48,17 +59,32 @@ export class AuthService {
     }
   }
 
+  /**
+   * Вход по телефону и паролю.
+   * Если в ответе twoFactorRequired === true, JWT ещё не выдан: сохраняем временный токен
+   * и вызывающий компонент должен перейти на /2fa-verify.
+   */
   login(credentials: LoginRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
       switchMap(res => {
-        if (isPlatformBrowser(this.platformId) && res.token) {
-          localStorage.setItem('token', res.token);
-          this.scheduleTokenExpiry(res.token);
-          return this.getMe().pipe(map(() => res));
+        if (res.twoFactorRequired && res.tempToken) {
+          this.setPendingTwoFactor(res);
+          return of(res);
         }
-        return of(res);
+        return this.completeLogin(res);
       })
     );
+  }
+
+  /** Сохраняет настоящий JWT и загружает профиль. */
+  private completeLogin(res: AuthResponse): Observable<AuthResponse> {
+    if (isPlatformBrowser(this.platformId) && res.token) {
+      this.clearPendingTwoFactor();
+      localStorage.setItem('token', res.token);
+      this.scheduleTokenExpiry(res.token);
+      return this.getMe().pipe(map(() => res));
+    }
+    return of(res);
   }
 
   register(data: any): Observable<any> {
@@ -69,15 +95,109 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/activate`, null, {
       params: { phone, code }
     }).pipe(
-      switchMap(res => {
-        if (isPlatformBrowser(this.platformId) && res.token) {
-          localStorage.setItem('token', res.token);
-          this.scheduleTokenExpiry(res.token);
-          return this.getMe().pipe(map(() => res));
-        }
-        return of(res);
-      })
+      switchMap(res => this.completeLogin(res))
     );
+  }
+
+  // ───────────────────────── 2FA: завершение входа ─────────────────────────
+
+  private setPendingTwoFactor(res: AuthResponse): void {
+    if (!isPlatformBrowser(this.platformId) || !res.tempToken) return;
+
+    const method: TwoFactorMethod = res.twoFactorMethod || 'WHATSAPP';
+    const pending: PendingTwoFactor = {
+      tempToken: res.tempToken,
+      phone: res.phone,
+      method,
+      availableMethods: res.availableMethods?.length ? res.availableMethods : [method],
+      codeSent: res.codeSent === true,
+      backupCodesAvailable: res.backupCodesAvailable === true,
+      expiresAt: this.tokenExpiryMs(res.tempToken) ?? Date.now() + 5 * 60 * 1000,
+    };
+    sessionStorage.setItem(this.pendingTwoFactorKey, JSON.stringify(pending));
+  }
+
+  /** Незавершённый вход, ожидающий код. null — если его нет или временный токен уже истёк. */
+  getPendingTwoFactor(): PendingTwoFactor | null {
+    if (!isPlatformBrowser(this.platformId)) return null;
+
+    const raw = sessionStorage.getItem(this.pendingTwoFactorKey);
+    if (!raw) return null;
+    try {
+      const pending = JSON.parse(raw) as PendingTwoFactor;
+      if (!pending.tempToken || pending.expiresAt <= Date.now()) {
+        this.clearPendingTwoFactor();
+        return null;
+      }
+      return pending;
+    } catch {
+      this.clearPendingTwoFactor();
+      return null;
+    }
+  }
+
+  clearPendingTwoFactor(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      sessionStorage.removeItem(this.pendingTwoFactorKey);
+    }
+  }
+
+  /** Проверяет код второго фактора. Только после этого бэкенд выдаёт настоящий JWT. */
+  verifyTwoFactor(code: string, method: TwoFactorCodeType): Observable<AuthResponse> {
+    const pending = this.getPendingTwoFactor();
+    if (!pending) {
+      return throwError(() => ({ status: 401, error: { message: 'TWO_FA.SESSION_EXPIRED' } }));
+    }
+    return this.http
+      .post<AuthResponse>(`${this.apiUrl}/2fa/verify`, { tempToken: pending.tempToken, code, method })
+      .pipe(switchMap(res => this.completeLogin(res)));
+  }
+
+  /** Отправляет (повторно) WhatsApp-код для незавершённого входа. */
+  sendTwoFactorLoginCode(): Observable<void> {
+    const pending = this.getPendingTwoFactor();
+    if (!pending) {
+      return throwError(() => ({ status: 401, error: { message: 'TWO_FA.SESSION_EXPIRED' } }));
+    }
+    return this.http.post<void>(`${this.apiUrl}/2fa/verify/send-code`, { tempToken: pending.tempToken });
+  }
+
+  // ───────────────────────── 2FA: управление в профиле ─────────────────────────
+
+  getTwoFactorStatus(): Observable<TwoFactorStatus> {
+    return this.http.get<TwoFactorStatus>(`${this.apiUrl}/2fa/status`);
+  }
+
+  /** TOTP: возвращает секрет и QR-код. WHATSAPP: отправляет проверочный код. */
+  setupTwoFactor(method: TwoFactorMethod): Observable<TwoFactorSetupResponse> {
+    return this.http.post<TwoFactorSetupResponse>(`${this.apiUrl}/2fa/setup`, { method });
+  }
+
+  /** Включает 2FA. Резервные коды в ответе показываются пользователю только один раз. */
+  enableTwoFactor(method: TwoFactorMethod, code: string): Observable<BackupCodesResponse> {
+    return this.http.post<BackupCodesResponse>(`${this.apiUrl}/2fa/enable`, { method, code });
+  }
+
+  /** WhatsApp-код текущему пользователю (нужен для отключения 2FA). */
+  sendTwoFactorCode(): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/2fa/send-code`, {});
+  }
+
+  disableTwoFactor(password: string, code: string, method: TwoFactorCodeType): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/2fa/disable`, { password, code, method });
+  }
+
+  regenerateBackupCodes(password: string): Observable<BackupCodesResponse> {
+    return this.http.post<BackupCodesResponse>(`${this.apiUrl}/2fa/backup-codes`, { password });
+  }
+
+  private tokenExpiryMs(token: string): number | null {
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.exp ? payload.exp * 1000 : null;
+    } catch {
+      return null;
+    }
   }
 
   resendCode(phone: string): Observable<void> {
@@ -112,6 +232,7 @@ export class AuthService {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
       localStorage.removeItem('user_data');
+      this.clearPendingTwoFactor();
       this.cartService.clearCart();
     }
     this.currentUserSubject.next(null);

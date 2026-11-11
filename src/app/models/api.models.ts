@@ -83,9 +83,65 @@ export interface User {
     password: string;
   }
 
+  export type TwoFactorMethod = 'WHATSAPP' | 'TOTP';
+  /** Чем подтверждается действие: кодом из WhatsApp, из приложения-аутентификатора или резервным кодом. */
+  export type TwoFactorCodeType = TwoFactorMethod | 'BACKUP_CODE';
+
+  /**
+   * Ответ /auth/login, /auth/activate и /auth/2fa/verify.
+   * Если twoFactorRequired === true, token пустой: вход нужно завершить кодом через /auth/2fa/verify.
+   */
   export interface AuthResponse {
-    token: string;
+    token: string | null;
     phone: string;
+    twoFactorRequired?: boolean;
+    /** Временный токен (5 минут), принимается только эндпоинтами /auth/2fa/verify */
+    tempToken?: string | null;
+    twoFactorMethod?: TwoFactorMethod | null;
+    availableMethods?: TwoFactorMethod[] | null;
+    /** WhatsApp: удалось ли отправить код сразу при входе */
+    codeSent?: boolean | null;
+    backupCodesAvailable?: boolean | null;
+  }
+
+  /** Незавершённый вход, который ждёт код второго фактора (хранится в sessionStorage). */
+  export interface PendingTwoFactor {
+    tempToken: string;
+    phone: string;
+    method: TwoFactorMethod;
+    availableMethods: TwoFactorMethod[];
+    codeSent: boolean;
+    backupCodesAvailable: boolean;
+    /** Время истечения временного токена, мс */
+    expiresAt: number;
+  }
+
+  export interface TwoFactorStatus {
+    enabled: boolean;
+    method: TwoFactorMethod | null;
+    /** 2FA обязательна для роли (ADMIN, VENUE_OWNER) */
+    required: boolean;
+    /** Способ, который фактически используется при входе */
+    loginMethod: TwoFactorMethod | null;
+    backupCodesLeft: number;
+  }
+
+  export interface TwoFactorSetupResponse {
+    method: TwoFactorMethod;
+    secret: string | null;
+    otpauthUri: string | null;
+    qrCodeDataUri: string | null;
+  }
+
+  export interface BackupCodesResponse {
+    backupCodes: string[];
+  }
+
+  /** Формат ошибок бэкенда (GlobalExceptionHandler). */
+  export interface ApiError {
+    status: number;
+    message: string;
+    timestamp: number;
   }
 
   export interface UserResponse {
