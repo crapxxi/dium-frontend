@@ -24,9 +24,7 @@ export class AdminRegisterOwnerComponent {
   public isLoading = false;
 
   registerForm = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    phone: ['', [Validators.required, Validators.minLength(10)]],
-    password: ['', [Validators.required, Validators.minLength(6)]]
+    phone: ['', [Validators.required, Validators.minLength(10)]]
   });
 
   onSubmit() {
@@ -41,21 +39,18 @@ export class AdminRegisterOwnerComponent {
     if (cleanPhone.startsWith('8')) cleanPhone = '7' + cleanPhone.substring(1);
     if (cleanPhone.length === 10) cleanPhone = '7' + cleanPhone;
 
-    const payload = {
-      ...this.registerForm.value,
-      phone: cleanPhone
-    };
+    const payload = { phone: cleanPhone };
 
     this.http.post(`${environment.apiUrl}/auth/venue-register`, payload).subscribe({
       next: () => {
         this.isLoading = false;
-        this.successMessage = 'Владелец заведения успешно зарегистрирован!';
+        this.successMessage = 'Пользователь назначен владельцем заведения!';
         this.registerForm.reset();
         this.cdr.detectChanges();
       },
       error: (err) => {
         this.isLoading = false;
-        this.errorMessage = err.error?.message || 'Ошибка при регистрации владельца';
+        this.errorMessage = err.error?.message || 'Не удалось назначить владельца';
         this.cdr.detectChanges();
       }
     });

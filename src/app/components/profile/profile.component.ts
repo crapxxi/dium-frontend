@@ -8,12 +8,13 @@ import { User, Venue } from '../../models/api.models';
 import { SupportComponent } from '../support/support.component';
 import { environment } from '../../../environments/environment';
 import { TranslateModule } from '@ngx-translate/core';
+import { SecuritySettingsComponent } from '../security-settings/security-settings.component';
 
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TranslateModule],
+  imports: [CommonModule, RouterLink, TranslateModule, SecuritySettingsComponent],
   templateUrl: './profile.component.html'
 })
 export class ProfileComponent implements OnInit, OnDestroy {

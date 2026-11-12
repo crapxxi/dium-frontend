@@ -1,75 +1,96 @@
 <div class="min-h-screen bg-orange-50/30 flex items-center justify-center p-4 font-sans">
     <div class="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl shadow-orange-200/50 border border-orange-100 overflow-hidden animate-in fade-in zoom-in duration-300">
-      
+
       <div class="bg-gradient-to-r from-orange-600 to-orange-500 p-10 text-center text-white relative">
         <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <svg width="100%" height="100%"><pattern id="pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1" fill="white"/></pattern><rect width="100%" height="100%" fill="url(#pattern)"/></svg>
         </div>
-    
-        
+
+
         <h2 class="text-3xl font-black uppercase tracking-tighter italic leading-none">DIUM</h2>
-        <p class="text-orange-100 text-[10px] font-black uppercase tracking-[0.3em] opacity-80 mt-2">Activation Center</p>
+        <p class="text-orange-100 text-[10px] font-black uppercase tracking-[0.3em] opacity-80 mt-2">{{ 'ACTIVATE.BADGE' | translate }}</p>
       </div>
-  
+
       <div class="p-8 md:p-10">
-        <div class="text-center mb-10">
-          <h3 class="text-xl font-extrabold text-gray-800 mb-2">Подтвердите номер</h3>
+        <div class="text-center mb-8">
+          <h3 class="text-xl font-extrabold text-gray-800 mb-2">{{ 'ACTIVATE.TITLE' | translate }}</h3>
           <p class="text-gray-500 text-sm font-medium">
-            Код отправлен на <br>
-            <span class="text-orange-600 font-bold text-base tracking-wide">{{ phone }}</span>
+            {{ 'OTP.CODE_SENT_TO' | translate }} <br>
+            <span class="text-orange-600 font-bold text-base tracking-wide">{{ displayPhone }}</span>
           </p>
         </div>
-  
+
+        <div *ngIf="errorMessage()" role="alert"
+             class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div class="bg-red-500 text-white rounded-full p-1 shadow-sm shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </div>
+          <p class="text-sm font-bold text-red-600 leading-tight">{{ errorMessage() | translate }}</p>
+        </div>
+
+        <div *ngIf="infoMessage() && !errorMessage()" role="status"
+             class="mb-6 p-4 bg-green-50 border border-green-100 rounded-2xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div class="bg-green-500 text-white rounded-full p-1 shadow-sm shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p class="text-sm font-bold text-green-700 leading-tight">{{ infoMessage() | translate }}</p>
+        </div>
+
         <div class="relative group mb-8">
-          <input 
-            [(ngModel)]="code"
-            type="text" 
+          <input
+            [value]="code()"
+            (input)="onCodeInput($event)"
+            type="text"
             inputmode="numeric"
-            maxlength="4"
-            placeholder="0000"
-            class="w-full h-20 text-center text-4xl font-black tracking-[1.5rem] pl-[1.5rem] border-4 border-gray-50 bg-gray-50/50 rounded-3xl focus:border-orange-500 focus:bg-white focus:ring-0 transition-all text-gray-800 placeholder:text-gray-200"
-            [disabled]="isLoading"
+            autocomplete="one-time-code"
+            [attr.maxlength]="codeLength"
+            [attr.aria-label]="'OTP.CODE_LABEL' | translate"
+            placeholder="000000"
+            class="w-full h-20 text-center text-3xl sm:text-4xl font-black tracking-[0.5rem] sm:tracking-[0.8rem] pl-[0.5rem] sm:pl-[0.8rem] border-4 border-gray-50 bg-gray-50/50 rounded-3xl focus:border-orange-500 focus:bg-white focus:ring-0 outline-none transition-all text-gray-800 placeholder:text-gray-200"
+            [class.border-red-200]="errorMessage()"
+            [disabled]="isLoading()"
             (keyup.enter)="onActivate()"
           >
         </div>
-  
-        <button 
+
+        <button
           (click)="onActivate()"
-          [disabled]="code.length < 4 || isLoading"
+          [disabled]="code().length < codeLength || isLoading()"
           class="w-full bg-gradient-to-r from-orange-600 to-orange-500 text-white font-black uppercase tracking-widest py-5 rounded-2xl shadow-xl shadow-orange-200 hover:shadow-orange-300 hover:-translate-y-0.5 active:scale-95 transition-all disabled:opacity-50 disabled:translate-y-0 disabled:shadow-none"
         >
-          <span *ngIf="!isLoading">Подтвердить</span>
-          <div *ngIf="isLoading" class="flex items-center justify-center gap-3">
+          <span *ngIf="!isLoading()">{{ 'ACTIVATE.SUBMIT' | translate }}</span>
+          <div *ngIf="isLoading()" class="flex items-center justify-center gap-3">
             <div class="w-5 h-5 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-            <span>Проверка...</span>
+            <span>{{ 'ACTIVATE.SUBMITTING' | translate }}</span>
           </div>
         </button>
-  
-        <div class="mt-10 flex flex-col items-center gap-4">
-          <button 
+
+        <div class="mt-8 flex flex-col items-center gap-4">
+          <button
             (click)="onResend()"
-            [disabled]="resendCooldown > 0 || isLoading"
-            class="text-[11px] font-black uppercase tracking-widest transition-all px-6 py-2 rounded-full border-2"
-            [class.text-gray-400]="resendCooldown > 0"
-            [class.border-transparent]="resendCooldown > 0"
-            [class.text-orange-600]="resendCooldown === 0"
-            [class.border-orange-100]="resendCooldown === 0"
-            [class.hover:bg-orange-50]="resendCooldown === 0"
+            [disabled]="countdown.seconds() > 0 || isLoading() || isResending()"
+            class="text-[11px] font-black uppercase tracking-widest transition-all px-6 py-2 rounded-full border-2 flex items-center gap-2"
+            [class.text-gray-400]="countdown.seconds() > 0"
+            [class.border-transparent]="countdown.seconds() > 0"
+            [class.text-orange-600]="countdown.seconds() === 0"
+            [class.border-orange-100]="countdown.seconds() === 0"
+            [class.hover:bg-orange-50]="countdown.seconds() === 0"
           >
-            Отправить код повторно
+            <div *ngIf="isResending()" class="w-3 h-3 border-2 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
+            {{ 'OTP.RESEND' | translate }}
           </button>
-          
-          <div *ngIf="resendCooldown > 0" class="flex items-center gap-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
+
+          <div *ngIf="countdown.seconds() > 0" class="flex items-center gap-2 text-gray-400 font-bold text-[10px] uppercase tracking-widest">
             <svg class="w-3 h-3 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            Доступно через {{ resendCooldown }} сек
+            {{ 'OTP.RESEND_IN' | translate: { sec: countdown.seconds() } }}
           </div>
         </div>
       </div>
-  
+
       <div class="bg-gray-50/80 p-6 text-center border-t border-gray-100">
         <a routerLink="/login" class="group flex items-center justify-center gap-2 text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-orange-600 transition-colors">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7" /></svg>
-          Вернуться назад
+          {{ 'ACTIVATE.BACK' | translate }}
         </a>
       </div>
     </div>
