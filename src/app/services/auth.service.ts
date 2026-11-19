@@ -37,9 +37,11 @@ export class AuthService {
       const token = this.getToken();
       if (token) {
         this.scheduleTokenExpiry(token);
-        this.getMe().subscribe({
+        // После создания сервиса: authInterceptor внутри запроса сам запрашивает AuthService,
+        // синхронный вызов из конструктора давал NG0200 (циклическая зависимость)
+        queueMicrotask(() => this.getMe().subscribe({
           error: (err) => console.error('Сессия не валидна:', err)
-        });
+        }));
       }
     }
   }

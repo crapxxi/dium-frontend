@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID, Injector } from '@angular/core';
 import { BehaviorSubject, map, Observable, throwError, combineLatest } from 'rxjs';
-import { Product, CartItem, OrderRequest, OrderItemRequest, Modifier, Venue } from '../models/api.models';
+import { Product, CartItem, OrderRequest, OrderItemRequest, Modifier, Venue, FulfillmentType } from '../models/api.models';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { AuthService } from './auth.service'; 
@@ -20,8 +20,11 @@ export class CartService {
   private currentVenue = new BehaviorSubject<Venue | null>(null);
   public currentVenue$ = this.currentVenue.asObservable();
 
-  private isDeliveryMode = new BehaviorSubject<boolean>(false);
-  public isDeliveryMode$ = this.isDeliveryMode.asObservable();
+  /** Самовывоз или доставка для всего заказа; null — покупатель ещё не выбрал. Сохраняется вместе с корзиной. */
+  private fulfillment = new BehaviorSubject<FulfillmentType | null>(null);
+  public fulfillment$ = this.fulfillment.asObservable();
+  public isDeliveryMode$ = this.fulfillment$.pipe(map(type => type === 'DELIVERY'));
+  private readonly fulfillmentKey = 'cart_fulfillment';
 
   private get authService(): AuthService {
     const { AuthService } = require('./auth.service'); 
@@ -52,10 +55,16 @@ export class CartService {
         try {
           const items = JSON.parse(savedCart);
           this.cartItems.next(items);
-          if (items.length > 0) this.loadVenueInfo(items[0].venueId);
+          // Не из конструктора: запрос проходит через authInterceptor, которому нужен AuthService,
+          // а тот сам зависит от CartService — синхронный вызов давал NG0200 (циклическая зависимость)
+          if (items.length > 0) queueMicrotask(() => this.loadVenueInfo(items[0].venueId));
         } catch (e) {
           localStorage.removeItem('cart');
         }
+      }
+      const savedFulfillment = localStorage.getItem(this.fulfillmentKey);
+      if (savedFulfillment === 'PICKUP' || savedFulfillment === 'DELIVERY') {
+        this.fulfillment.next(savedFulfillment);
       }
     }
   }
@@ -67,8 +76,37 @@ export class CartService {
     });
   }
 
-  setDeliveryMode(status: boolean) {
-    this.isDeliveryMode.next(status);
+  get fulfillmentValue(): FulfillmentType | null {
+    return this.fulfillment.value;
+  }
+
+  setFulfillment(type: FulfillmentType | null) {
+    this.fulfillment.next(type);
+    if (isPlatformBrowser(this.platformId)) {
+      if (type) {
+        localStorage.setItem(this.fulfillmentKey, type);
+      } else {
+        localStorage.removeItem(this.fulfillmentKey);
+      }
+    }
+  }
+
+  /** id заведения, из которого сейчас корзина; null — корзина пуста. */
+  get cartVenueId(): number | null {
+    const items = this.cartItems.value;
+    return items.length > 0 ? items[0].venueId : null;
+  }
+
+  /**
+   * Перед добавлением товара из другого заведения: спрашивает, очистить ли корзину.
+   * @returns false, если покупатель отказался
+   */
+  prepareForVenue(venueId: number): boolean {
+    const current = this.cartVenueId;
+    if (current === null || current === venueId) return true;
+    if (!confirm('В корзине товары из другого заведения. Очистить?')) return false;
+    this.clearCart();
+    return true;
   }
 
   addToCart(product: Product, selectedModifiers: Modifier[] = []) {
@@ -116,7 +154,7 @@ export class CartService {
 
     if (updated.length === 0) {
       this.currentVenue.next(null);
-      this.isDeliveryMode.next(false);
+      this.setFulfillment(null);
     }
     this.updateCart(updated);
   }
@@ -125,14 +163,14 @@ export class CartService {
     const updated = this.cartItems.value.filter(i => i !== itemToRemove);
     if (updated.length === 0) {
       this.currentVenue.next(null);
-      this.isDeliveryMode.next(false);
+      this.setFulfillment(null);
     }
     this.updateCart(updated);
   }
 
   clearCart() {
     this.updateCart([]);
-    this.isDeliveryMode.next(false);
+    this.setFulfillment(null);
     this.currentVenue.next(null);
   }
 
@@ -145,16 +183,17 @@ export class CartService {
 
   checkout(address: string | null, comment: string = '', paymentFrom: string = ''): Observable<any> {
     const items = this.cartItems.value;
-    const venue = this.currentVenue.value;
+    const fulfillment = this.fulfillment.value;
     if (items.length === 0) return throwError(() => new Error('Empty cart'));
+    if (!fulfillment) return throwError(() => new Error('Fulfillment is not chosen'));
 
-    const isDelivery = !!address;
-    const fee = (isDelivery && venue) ? (venue.deliveryPrice || 0) : 0;
     const finalPaymentMethod = paymentFrom || this.authService.currentUserValue?.paymentFrom;
 
     const orderRequest: OrderRequest = {
       venueId: items[0].venueId,
-      address,
+      // Адрес уходит только с доставкой: при самовывозе заказ не попадает в ленту курьеров
+      address: fulfillment === 'DELIVERY' ? address : null,
+      fulfillment,
       comment,
       items: items.map(item => ({
         productId: item.id,
