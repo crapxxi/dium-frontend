@@ -12,6 +12,29 @@
       <p class="text-gray-500 text-sm font-medium leading-relaxed">{{ venue.description }}</p>
     </div>
 
+    <!-- Самовывоз или доставка: покупатель выбирает сам, выбор действует на весь заказ -->
+    <div *ngIf="venue && cartIsHere" class="mb-8 p-5 bg-white rounded-[32px] border-2 border-orange-100 shadow-sm">
+      <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] ml-1 mb-3">{{ 'MENU.FULFILLMENT_TITLE' | translate }}</p>
+      <div class="grid grid-cols-2 gap-2 p-1.5 bg-gray-50 rounded-[24px] border border-gray-100">
+        <button type="button" (click)="setFulfillment('PICKUP')"
+                class="py-3 px-3 rounded-[20px] text-left transition-all"
+                [ngClass]="fulfillment === 'PICKUP' ? 'bg-white shadow-md ring-2 ring-orange-500' : 'hover:bg-white/60'">
+          <p class="font-black uppercase text-[11px] tracking-widest text-orange-900">🏃‍♂️ {{ 'CART.PICKUP' | translate }}</p>
+          <p class="text-[10px] font-bold text-gray-400 mt-0.5">{{ 'MENU.PICKUP_SUB' | translate }}</p>
+        </button>
+        <button type="button" (click)="setFulfillment('DELIVERY')" [disabled]="!canDeliver"
+                class="py-3 px-3 rounded-[20px] text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                [ngClass]="fulfillment === 'DELIVERY' ? 'bg-white shadow-md ring-2 ring-orange-500' : 'hover:bg-white/60'">
+          <p class="font-black uppercase text-[11px] tracking-widest text-orange-900">🛵 {{ 'CART.DELIVERY' | translate }}
+            <span *ngIf="canDeliver" class="text-orange-600">+{{ venue.deliveryPrice || 0 }} ₸</span>
+          </p>
+          <p class="text-[10px] font-bold text-gray-400 mt-0.5">
+            {{ (canDeliver ? 'MENU.DELIVERY_SUB' : 'MENU.DELIVERY_UNAVAILABLE') | translate }}
+          </p>
+        </button>
+      </div>
+    </div>
+
     <div *ngIf="isLoading" class="flex justify-center py-20">
       <div class="w-10 h-10 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin"></div>
     </div>
@@ -86,6 +109,42 @@
     </div>
   </div>
 
+  <!-- Окно «Как получить заказ?»: показывается при первом добавлении товара -->
+  <div *ngIf="showFulfillmentDialog" class="fixed inset-0 z-[110] flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="absolute inset-0 bg-orange-900/60 backdrop-blur-sm animate-in fade-in duration-300" (click)="closeFulfillmentDialog()"></div>
+    <div class="relative bg-white w-full max-w-md rounded-t-[40px] sm:rounded-[40px] shadow-2xl p-8 animate-in slide-in-from-bottom-10 duration-300"
+         role="dialog" aria-modal="true" [attr.aria-label]="'MENU.FULFILLMENT_TITLE' | translate">
+      <div class="flex justify-between items-start mb-6">
+        <div>
+          <h2 class="text-2xl font-black text-orange-900 italic uppercase tracking-tighter">{{ 'MENU.FULFILLMENT_TITLE' | translate }}</h2>
+          <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mt-1">{{ 'MENU.FULFILLMENT_HINT' | translate }}</p>
+        </div>
+        <button (click)="closeFulfillmentDialog()" class="p-2 bg-orange-50 rounded-full text-orange-900 hover:bg-orange-100 transition-all">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <div class="space-y-3">
+        <button (click)="chooseFulfillment('PICKUP')"
+                class="w-full flex items-center gap-4 p-5 rounded-[28px] border-2 border-orange-100 hover:border-orange-500 hover:bg-orange-50/50 text-left transition-all active:scale-[0.98]">
+          <span class="text-3xl">🏃‍♂️</span>
+          <span>
+            <span class="block font-black text-orange-900 uppercase text-sm tracking-wide">{{ 'CART.PICKUP' | translate }}</span>
+            <span class="block text-[11px] font-bold text-gray-400 mt-0.5">{{ 'MENU.PICKUP_SUB' | translate }}</span>
+          </span>
+        </button>
+        <button (click)="chooseFulfillment('DELIVERY')"
+                class="w-full flex items-center gap-4 p-5 rounded-[28px] border-2 border-orange-100 hover:border-orange-500 hover:bg-orange-50/50 text-left transition-all active:scale-[0.98]">
+          <span class="text-3xl">🛵</span>
+          <span class="flex-1">
+            <span class="block font-black text-orange-900 uppercase text-sm tracking-wide">{{ 'CART.DELIVERY' | translate }}</span>
+            <span class="block text-[11px] font-bold text-gray-400 mt-0.5">{{ 'MENU.DELIVERY_SUB' | translate }}</span>
+          </span>
+          <span class="font-black text-orange-600 italic">+{{ venue?.deliveryPrice || 0 }} ₸</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="showModifierModal" class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4">
     <div class="absolute inset-0 bg-orange-900/60 backdrop-blur-sm animate-in fade-in duration-300" (click)="closeModal()"></div>
     
@@ -140,6 +199,19 @@
       </div>
 
       <div class="p-6 sm:p-8 bg-orange-50/80 backdrop-blur-md border-t border-orange-100 flex flex-col gap-4 shrink-0">
+        <div *ngIf="canDeliver" class="grid grid-cols-2 gap-1.5 p-1.5 bg-white rounded-3xl border border-orange-100 shadow-sm">
+          <button type="button" (click)="setFulfillment('PICKUP')"
+                  class="py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all"
+                  [ngClass]="fulfillment === 'PICKUP' ? 'bg-orange-600 text-white' : 'text-gray-400'">
+            🏃‍♂️ {{ 'CART.PICKUP' | translate }}
+          </button>
+          <button type="button" (click)="setFulfillment('DELIVERY')"
+                  class="py-3 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all"
+                  [ngClass]="fulfillment === 'DELIVERY' ? 'bg-orange-600 text-white' : 'text-gray-400'">
+            🛵 {{ 'CART.DELIVERY' | translate }} +{{ venue?.deliveryPrice || 0 }} ₸
+          </button>
+        </div>
+
         <div class="flex items-center justify-between bg-white rounded-3xl p-1.5 border border-orange-100 shadow-sm">
           <button (click)="decreaseModalQty()" class="w-12 h-12 flex items-center justify-center bg-orange-50 hover:bg-orange-100 rounded-2xl text-orange-600 font-black text-xl transition-all active:scale-95">-</button>
           <span class="text-xl font-black text-orange-900">{{ selectedQuantity }}</span>

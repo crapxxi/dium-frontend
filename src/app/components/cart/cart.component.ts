@@ -6,6 +6,7 @@ import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
 import { Subscription } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
+import { FulfillmentType } from '../../models/api.models';
 
 
 @Component({
@@ -21,6 +22,8 @@ export class CartComponent implements OnInit, OnDestroy {
   private cdr = inject(ChangeDetectorRef);
 
   public isSubmitting = false;
+  /** Выбор покупателя: самовывоз или доставка (null — ещё не выбрал). Общий с карточкой товара. */
+  public fulfillment: FulfillmentType | null = null;
   public isDelivery = false; 
   public address = '';       
   public orderComment = ''; 
@@ -28,14 +31,20 @@ export class CartComponent implements OnInit, OnDestroy {
   
   public canDeliver = false;
   private venueSub?: Subscription;
+  private fulfillmentSub?: Subscription;
 
   ngOnInit() {
-    this.cartService.setDeliveryMode(false);
+    this.fulfillmentSub = this.cartService.fulfillment$.subscribe(type => {
+      this.fulfillment = type;
+      this.isDelivery = type === 'DELIVERY';
+      this.cdr.detectChanges();
+    });
 
     this.venueSub = this.cartService.currentVenue$.subscribe(venue => {
       this.canDeliver = venue?.canDeliver ?? false;
-      
-      if (!this.canDeliver && this.isDelivery) {
+
+      // Заведение не доставляет — остаётся только самовывоз
+      if (venue && !this.canDeliver && this.fulfillment !== 'PICKUP') {
         this.toggleDelivery(false);
       }
       this.cdr.detectChanges();
@@ -44,18 +53,22 @@ export class CartComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.venueSub?.unsubscribe();
+    this.fulfillmentSub?.unsubscribe();
   }
 
   toggleDelivery(status: boolean) {
     if (status && !this.canDeliver) return;
-
-    this.isDelivery = status;
-    this.cartService.setDeliveryMode(status);
+    this.cartService.setFulfillment(status ? 'DELIVERY' : 'PICKUP');
   }
 
   checkout() {
     if (!this.authService.isLoggedIn()) {
       this.router.navigate(['/login']);
+      return;
+    }
+
+    if (!this.fulfillment) {
+      alert('Выберите, как получить заказ: самовывоз или доставка');
       return;
     }
 

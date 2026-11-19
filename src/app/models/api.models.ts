@@ -70,12 +70,16 @@ export interface User {
     modifierIds: number[];
   }
 
+  /** Как покупатель получает заказ: сам забирает или привозит студент-курьер. */
+  export type FulfillmentType = 'PICKUP' | 'DELIVERY';
+
   export interface OrderRequest {
     venueId: number;
     items: OrderItemRequest[];
     address: string | null;
     comment: string;
     paymentFrom?: string;
+    fulfillment: FulfillmentType;
   }
 
   export interface LoginRequest {

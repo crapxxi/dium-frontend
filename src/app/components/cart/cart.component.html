@@ -48,12 +48,18 @@
             <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] ml-2">{{ 'CART.DELIVERY_METHOD' | translate }}</p>
             <div class="flex p-2 bg-gray-50 rounded-[24px] border border-gray-100">
               <button (click)="toggleDelivery(false)" 
-                      [class.bg-white]="!isDelivery" [class.shadow-md]="!isDelivery"
+                      [class.bg-white]="fulfillment === 'PICKUP'" [class.shadow-md]="fulfillment === 'PICKUP'"
+                      [class.text-orange-600]="fulfillment === 'PICKUP'"
                       class="flex-1 py-4 rounded-[20px] font-black uppercase text-[10px] tracking-widest transition-all">🏃‍♂️ {{ 'CART.PICKUP' | translate }}</button>
               <button (click)="toggleDelivery(true)" 
                       [class.bg-white]="isDelivery" [class.shadow-md]="isDelivery"
-                      class="flex-1 py-4 rounded-[20px] font-black uppercase text-[10px] tracking-widest transition-all">🚗 {{ 'CART.DELIVERY' | translate }}</button>
+                      [class.text-orange-600]="isDelivery"
+                      class="flex-1 py-4 rounded-[20px] font-black uppercase text-[10px] tracking-widest transition-all">🛵 {{ 'CART.DELIVERY' | translate }}</button>
             </div>
+            <p *ngIf="!fulfillment" class="text-[11px] font-bold text-orange-600 ml-2">{{ 'CART.CHOOSE_METHOD' | translate }}</p>
+            <p *ngIf="fulfillment" class="text-[11px] font-bold text-gray-400 ml-2">
+              {{ (isDelivery ? 'MENU.DELIVERY_SUB' : 'MENU.PICKUP_SUB') | translate }}
+            </p>
           </div>
 
           <div *ngIf="isDelivery" class="animate-in slide-in-from-top-2 duration-300">

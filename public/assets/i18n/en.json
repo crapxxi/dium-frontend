@@ -36,7 +36,12 @@
       "CONFIRM_ADD": "🛒 Add to Order",
       "REQUIRED_ERROR": "Select required options",
       "EMPTY_MENU": "It's empty here for now",
-      "SHOW_ALL": "Show Full Menu"
+      "SHOW_ALL": "Show Full Menu",
+      "FULFILLMENT_TITLE": "How do you want your order?",
+      "FULFILLMENT_HINT": "Applies to the whole order, you can change it in the cart",
+      "PICKUP_SUB": "Pick it up yourself at the venue",
+      "DELIVERY_SUB": "A student courier will bring it",
+      "DELIVERY_UNAVAILABLE": "This venue does not deliver"
     },
     "KITCHEN": {
       "SYNC": "Syncing with server...",
@@ -86,7 +91,8 @@
   "CHECKOUT_BTN": "Order Now",
   "EMPTY_TITLE": "Cart is empty",
   "EMPTY_SUB": "Looks like you haven't picked anything tasty for today yet",
-  "GO_TO_VENUES": "Go to venues"
+  "GO_TO_VENUES": "Go to venues",
+  "CHOOSE_METHOD": "Choose pickup or delivery"
 },
 "ADD_VENUE": {
   "TITLE": "New Venue",
@@ -163,7 +169,7 @@
     "KASPI_LABEL": "Kaspi Pay Link (for payments)",
     "ENABLE_DELIVERY": "Enable Delivery",
     "DELIVERY_PRICE": "Delivery Price",
-    "DELIVERY_HINT": "* This amount will be automatically added to the receipt when delivery is selected",
+    "DELIVERY_HINT": "* One price for the whole order, however many items it has: the customer pays it and the student courier receives it",
     "SAVING": "Updating profile...",
     "SAVE_CHANGES": "Save Changes",
     "MENU_TITLE": "Venue Menu",
