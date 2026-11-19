@@ -78,6 +78,23 @@
           <span>{{ 'PROFILE.REG_OWNERS' | translate }}</span>
           <span class="group-hover:translate-x-1 transition-transform">→</span>
         </button>
+        <button routerLink="/admin/deliveries" class="w-full p-6 bg-white border-2 border-orange-500 text-orange-600 rounded-[32px] font-black shadow-lg shadow-orange-50 flex justify-between items-center group">
+          <span>🛵 {{ 'PROFILE.ADMIN_DELIVERIES' | translate }}</span>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+      </div>
+
+      <div *ngIf="user.role === 'CLIENT'" class="space-y-4 mb-8">
+        <button routerLink="/delivery" class="w-full p-6 bg-orange-600 text-white rounded-[32px] font-bold shadow-lg shadow-orange-100 flex justify-between items-center group">
+          <div class="flex items-center gap-4 text-left">
+            <span class="text-2xl">🛵</span>
+            <div>
+              <p class="leading-tight">{{ 'PROFILE.COURIER_TITLE' | translate }}</p>
+              <p class="text-[10px] text-orange-200 font-black uppercase tracking-wider mt-1">{{ 'PROFILE.COURIER_SUB' | translate }}</p>
+            </div>
+          </div>
+          <span class="group-hover:translate-x-1 transition-transform">→</span>
+        </button>
       </div>
 
       <div class="space-y-3 mb-2">

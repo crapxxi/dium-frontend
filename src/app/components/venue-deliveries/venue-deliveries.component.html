@@ -1,0 +1,132 @@
+<div class="max-w-4xl mx-auto">
+  <div *ngIf="errorMessage()" role="alert" class="mb-6 p-4 bg-red-50 border border-red-100 rounded-2xl text-sm font-bold text-red-600">
+    {{ errorMessage() | translate }}
+  </div>
+  <div *ngIf="infoMessage() && !errorMessage()" role="status" class="mb-6 p-4 bg-green-50 border border-green-100 rounded-2xl text-sm font-bold text-green-700">
+    {{ infoMessage() | translate }}
+  </div>
+
+  <p class="mb-6 p-4 bg-white border-2 border-orange-50 rounded-2xl text-[11px] font-bold text-gray-500 leading-relaxed">
+    🔐 {{ 'DELIVERY.VENUE_HOW_IT_WORKS' | translate }}
+  </p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div *ngFor="let d of active()" class="bg-white rounded-[32px] border-2 shadow-xl shadow-orange-900/5 overflow-hidden"
+         [ngClass]="d.status === 'ASSIGNED' ? 'border-orange-300' : 'border-orange-50'">
+      <div class="p-6">
+        <div class="flex justify-between items-start gap-3">
+          <div>
+            <p class="text-[10px] font-black text-orange-400 uppercase tracking-[0.2em]">{{ 'KITCHEN.ORDER_LABEL' | translate }}</p>
+            <p class="text-3xl font-black text-orange-900 italic leading-none">#{{ d.orderId }}</p>
+          </div>
+          <span class="px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-white"
+                [ngClass]="{
+                  'bg-gray-400': d.status === 'SEARCHING_COURIER',
+                  'bg-orange-500 animate-pulse': d.status === 'ASSIGNED',
+                  'bg-green-500': d.status === 'PICKED_UP'
+                }">
+            {{ 'DELIVERY.STATUS_' + d.status | translate }}
+          </span>
+        </div>
+
+        <p class="mt-4 text-[11px] font-bold text-gray-500">
+          📍 <span class="font-black text-orange-900">{{ d.deliveryAddress }}</span>
+        </p>
+        <p *ngIf="d.courierName" class="mt-1 text-[11px] font-bold text-gray-500">
+          🛵 {{ 'DELIVERY.COURIER' | translate }}: <span class="font-black text-orange-900">{{ d.courierName }}</span>
+          <a *ngIf="d.courierPhone" [href]="phoneHref(d.courierPhone)" class="text-blue-600 underline ml-1">{{ d.courierPhone }}</a>
+        </p>
+        <p *ngIf="d.status === 'SEARCHING_COURIER'" class="mt-3 text-[11px] font-bold text-gray-400">
+          {{ 'DELIVERY.VENUE_SEARCHING_HINT' | translate }}
+        </p>
+        <p *ngIf="d.status === 'PICKED_UP'" class="mt-3 text-[11px] font-bold text-green-600">
+          {{ 'DELIVERY.VENUE_ON_THE_WAY' | translate }} {{ d.pickedUpAt | date:'HH:mm' }}
+        </p>
+
+        <!-- Передача курьеру: код курьера -->
+        <div *ngIf="d.status === 'ASSIGNED'" class="mt-5 border-t-2 border-dashed border-orange-100 pt-5">
+          <ng-container *ngIf="d.orderStatus === 'READY'; else notReady">
+            <ng-container *ngIf="!d.pickupCodeLocked; else codeLocked">
+              <label class="block text-[10px] font-black text-orange-700 uppercase tracking-widest mb-2" [attr.for]="'pickup-' + d.id">
+                {{ 'DELIVERY.ENTER_COURIER_CODE' | translate }}
+              </label>
+              <div class="flex gap-2">
+                <input [id]="'pickup-' + d.id" type="text" inputmode="numeric" maxlength="8" placeholder="••••"
+                       [value]="codeFor(d.id)" (input)="onCodeInput(d.id, $event)"
+                       class="flex-1 min-w-0 text-center text-2xl font-black tracking-[0.4em] px-4 py-3 rounded-2xl border-2 border-orange-100 focus:border-orange-500 outline-none">
+                <button (click)="handOver(d)" [disabled]="codeFor(d.id).length < 4 || busyId() !== null"
+                        class="shrink-0 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-200 text-white font-black px-5 rounded-2xl text-[11px] uppercase tracking-widest transition-all active:scale-95">
+                  {{ 'DELIVERY.HAND_TO_COURIER' | translate }}
+                </button>
+              </div>
+              <p class="text-[10px] font-bold text-gray-400 mt-2">
+                {{ 'DELIVERY.ATTEMPTS_LEFT' | translate:{ count: d.pickupAttemptsLeft } }}
+              </p>
+            </ng-container>
+          </ng-container>
+          <ng-template #notReady>
+            <p class="p-3 bg-blue-50 border border-blue-100 rounded-2xl text-[11px] font-bold text-blue-700">
+              {{ 'DELIVERY.VENUE_MARK_READY_FIRST' | translate }}
+            </p>
+          </ng-template>
+          <ng-template #codeLocked>
+            <p class="p-3 bg-red-50 border border-red-100 rounded-2xl text-[11px] font-bold text-red-600">
+              {{ 'DELIVERY.CODE_LOCKED' | translate }}
+            </p>
+          </ng-template>
+        </div>
+      </div>
+
+      <div class="px-6 py-3 bg-gray-50/60 border-t border-orange-50 flex justify-end">
+        <button (click)="openIssue(d.id)" class="text-[10px] font-black uppercase tracking-widest text-orange-400 hover:text-orange-700">
+          ⚠ {{ 'DELIVERY.REPORT_ISSUE' | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="issueForm() as form">
+        <div *ngIf="form.deliveryId === d.id" class="px-6 pb-6 pt-4 bg-orange-50/40 border-t border-orange-100 space-y-3">
+          <div class="flex flex-wrap gap-2">
+            <button *ngFor="let type of issueTypes.VENUE" type="button" (click)="setIssueType(type)"
+                    class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wide border-2"
+                    [ngClass]="form.type === type ? 'bg-orange-600 border-orange-600 text-white' : 'bg-white border-orange-100 text-orange-700'">
+              {{ 'DELIVERY.ISSUE_' + type | translate }}
+            </button>
+          </div>
+          <textarea rows="2" maxlength="1000" [value]="form.description" (input)="setIssueDescription($event)"
+                    [placeholder]="'DELIVERY.ISSUE_PLACEHOLDER' | translate"
+                    class="w-full px-4 py-3 rounded-2xl border-2 border-orange-100 focus:border-orange-400 outline-none text-sm"></textarea>
+          <div class="flex gap-2 justify-end">
+            <button (click)="closeIssue()" class="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-gray-400">
+              {{ 'DELIVERY.CANCEL' | translate }}
+            </button>
+            <button (click)="sendIssue()" [disabled]="!form.type || busyId() !== null"
+                    class="px-5 py-2.5 bg-orange-600 disabled:bg-gray-200 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">
+              {{ 'DELIVERY.ISSUE_SEND' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="active().length === 0" class="text-center py-16">
+    <p class="text-4xl mb-3">🛵</p>
+    <p class="font-black text-orange-900 uppercase italic">{{ 'DELIVERY.VENUE_EMPTY' | translate }}</p>
+  </div>
+
+  <div *ngIf="finished().length" class="mt-10">
+    <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] ml-2 mb-3">{{ 'DELIVERY.HISTORY' | translate }}</p>
+    <div *ngFor="let d of finished()" class="flex justify-between items-center gap-3 bg-white rounded-2xl border border-orange-50 px-5 py-3 mb-2">
+      <div class="min-w-0">
+        <p class="font-black text-orange-900 text-sm">#{{ d.orderId }} · {{ d.courierName || '—' }}</p>
+        <p class="text-[10px] font-bold text-gray-400 truncate">{{ d.deliveryAddress }}</p>
+      </div>
+      <span *ngIf="d.status === 'DELIVERED'" class="shrink-0 text-[10px] font-black uppercase text-green-600">
+        ✅ {{ 'DELIVERY.STATUS_DELIVERED' | translate }} {{ d.deliveredAt | date:'dd.MM HH:mm' }}
+      </span>
+      <span *ngIf="d.status === 'CANCELLED'" class="shrink-0 text-[10px] font-black uppercase text-red-400">
+        {{ 'DELIVERY.STATUS_CANCELLED' | translate }}
+      </span>
+    </div>
+  </div>
+</div>

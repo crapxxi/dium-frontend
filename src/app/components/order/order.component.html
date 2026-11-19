@@ -45,6 +45,26 @@
           </div>
         </div>
 
+        <!-- Доставка студентом: статус, курьер и код для получения -->
+        <div *ngIf="deliveries()[order.id] as delivery" class="mx-8 mb-2 p-4 rounded-[24px] border-2 border-dashed border-orange-200 bg-orange-50/50">
+          <div class="flex justify-between items-center gap-3">
+            <div class="min-w-0">
+              <p class="text-[9px] font-black text-orange-400 uppercase tracking-widest">🛵 {{ 'ORDERS.DELIVERY_LABEL' | translate }}</p>
+              <p class="text-[11px] font-black text-orange-900 uppercase">{{ 'DELIVERY.STATUS_' + delivery.status | translate }}</p>
+              <p *ngIf="delivery.courierName" class="text-[10px] font-bold text-gray-500 truncate">
+                {{ 'DELIVERY.COURIER' | translate }}: {{ delivery.courierName }} <span *ngIf="delivery.courierPhone">· {{ delivery.courierPhone }}</span>
+              </p>
+            </div>
+            <div *ngIf="delivery.deliveryCode" class="shrink-0 bg-orange-900 px-4 py-2 rounded-2xl text-center">
+              <p class="text-[8px] font-black text-orange-300 uppercase tracking-widest">{{ 'ORDERS.DELIVERY_CODE' | translate }}</p>
+              <p class="text-xl font-black text-white italic tracking-[0.2em] leading-none mt-0.5">{{ delivery.deliveryCode }}</p>
+            </div>
+          </div>
+          <a routerLink="/delivery" class="inline-block mt-2 text-[10px] font-black uppercase tracking-widest text-orange-600 underline">
+            {{ 'ORDERS.DELIVERY_DETAILS' | translate }}
+          </a>
+        </div>
+
         <div class="px-8 py-4 space-y-4 flex-1">
           <div *ngFor="let item of order.items" class="flex justify-between items-start py-3 border-b border-orange-50 last:border-0">
             <div class="flex-1">

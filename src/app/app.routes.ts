@@ -19,6 +19,8 @@ import { ForgotPasswordComponent } from './components/forgot-password/forgot-pas
 import { TractionComponent } from './components/traction/traction.component';
 import { AboutComponent } from './components/about/about.component';
 import { TwoFactorVerifyComponent } from './components/two-factor-verify/two-factor-verify.component';
+import { DeliveryComponent } from './components/delivery/delivery.component';
+import { AdminDeliveriesComponent } from './components/admin/admin-deliveries.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent,canActivate: [guestGuard] },
@@ -31,6 +33,8 @@ export const routes: Routes = [
   { path: 'orders', component: OrdersComponent},
   { path: 'profile', component: ProfileComponent},
   { path: 'admin', component:AdminRegisterOwnerComponent},
+  { path: 'admin/deliveries', component: AdminDeliveriesComponent },
+  { path: 'delivery', component: DeliveryComponent },
   { path: 'create-venue', component:CreateVenueComponent},
   { path: 'manage-venue/:id', component:ManageVenueComponent},
   { path: 'support', component:SupportComponent},

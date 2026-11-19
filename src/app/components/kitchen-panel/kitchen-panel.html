@@ -1,6 +1,28 @@
 <main class="flex-1 bg-[#FFFBF0] min-h-screen pb-20">
   <div class="container mx-auto px-4 py-8 max-w-7xl">
 
+    <!-- Вкладки: заказы кухни и доставки студентами -->
+    <div class="grid grid-cols-2 gap-2 p-1 mb-8 max-w-md bg-white rounded-2xl border-2 border-orange-50" role="tablist">
+      <button type="button" role="tab" (click)="setTab('orders')" [attr.aria-selected]="tab === 'orders'"
+              class="py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all"
+              [ngClass]="tab === 'orders' ? 'bg-orange-600 text-white shadow-md shadow-orange-200' : 'text-gray-400 hover:text-orange-600'">
+        {{ 'NAV.KITCHEN' | translate }}
+      </button>
+      <button type="button" role="tab" (click)="setTab('deliveries')" [attr.aria-selected]="tab === 'deliveries'"
+              class="py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all relative"
+              [ngClass]="tab === 'deliveries' ? 'bg-orange-600 text-white shadow-md shadow-orange-200' : 'text-gray-400 hover:text-orange-600'">
+        {{ 'DELIVERY.VENUE_TAB' | translate }}
+        <span *ngIf="couriersWaiting > 0"
+              class="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center animate-pulse">
+          {{ couriersWaiting }}
+        </span>
+      </button>
+    </div>
+
+    <app-venue-deliveries *ngIf="tab === 'deliveries'" [deliveries]="deliveries" (changed)="loadDeliveries()"></app-venue-deliveries>
+
+    <ng-container *ngIf="tab === 'orders'">
+
     <div *ngIf="isLoading" class="flex flex-col items-center justify-center py-32">
       <div class="w-14 h-14 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin mb-4"></div>
       <p class="text-[10px] font-black uppercase tracking-[0.3em] text-orange-900/40">{{ 'KITCHEN.SYNC' | translate }}</p>
@@ -143,7 +165,19 @@
               {{ 'KITCHEN.ACTION_READY' | translate }}
             </button>
 
-            <button *ngIf="order.status === 'READY'"
+            <div *ngIf="activeDelivery(order.id) as delivery"
+                 class="p-4 rounded-[20px] bg-orange-50 border-2 border-dashed border-orange-200 text-center">
+              <p class="text-[10px] font-black uppercase tracking-widest text-orange-700">
+                🛵 {{ 'DELIVERY.STATUS_' + delivery.status | translate }}
+                <span *ngIf="delivery.courierName">· {{ delivery.courierName }}</span>
+              </p>
+              <button *ngIf="delivery.status === 'ASSIGNED' && order.status === 'READY'" (click)="setTab('deliveries')"
+                      class="mt-2 text-[10px] font-black uppercase tracking-widest text-orange-600 underline">
+                {{ 'DELIVERY.HAND_TO_COURIER' | translate }} →
+              </button>
+            </div>
+
+            <button *ngIf="order.status === 'READY' && !activeDelivery(order.id)"
                     (click)="updateStatus(order.id, 'COMPLETED')"
                     class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-4 rounded-[20px] text-[11px] uppercase tracking-[0.2em] shadow-lg shadow-green-100 transition-all active:scale-95">
               {{ 'KITCHEN.ACTION_COMPLETE' | translate }}
@@ -168,5 +202,6 @@
       </div>
     </ng-template>
 
+    </ng-container>
   </div>
 </main>
