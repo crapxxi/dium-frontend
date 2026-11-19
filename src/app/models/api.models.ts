@@ -171,3 +171,138 @@ export interface User {
     maxChoices: number;
     modifiers: Modifier[];
   }
+
+  // ───────────────────────── Доставка ─────────────────────────
+
+  export type OrderStatus = 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
+  export type DeliveryStatus = 'SEARCHING_COURIER' | 'ASSIGNED' | 'PICKED_UP' | 'DELIVERED' | 'CANCELLED';
+  export type DeliveryIssueType =
+    | 'NOT_DELIVERED'
+    | 'COURIER_NOT_ARRIVED'
+    | 'CUSTOMER_UNREACHABLE'
+    | 'CUSTOMER_REFUSES_CODE'
+    | 'DAMAGED_OR_WRONG'
+    | 'CODE_LOCKED'
+    | 'OTHER';
+  export type DeliveryIssueStatus = 'OPEN' | 'RESOLVED';
+  export type DeliveryParticipant = 'CUSTOMER' | 'COURIER' | 'VENUE' | 'SYSTEM';
+
+  /** Свободный заказ в ленте курьера (данных клиента нет). */
+  export interface AvailableDelivery {
+    id: number;
+    orderId: number;
+    venueName: string;
+    venueAddress: string | null;
+    deliveryAddress: string;
+    itemsCount: number;
+    courierFee: number;
+    orderStatus: OrderStatus;
+    createdAt: string;
+  }
+
+  /** Доставка глазами курьера. pickupCode есть только до получения заказа в заведении. */
+  export interface CourierDelivery {
+    id: number;
+    orderId: number;
+    status: DeliveryStatus;
+    orderStatus: OrderStatus;
+    venueName: string;
+    venueAddress: string | null;
+    deliveryAddress: string;
+    customerName: string;
+    customerPhone: string | null;
+    comment: string | null;
+    items: OrderItemResponse[];
+    courierFee: number;
+    pickupCode: string | null;
+    deliveryAttemptsLeft: number;
+    deliveryCodeLocked: boolean;
+    assignedAt: string | null;
+    pickedUpAt: string | null;
+    deliveredAt: string | null;
+  }
+
+  export interface CourierSummary {
+    deliveredCount: number;
+    totalEarned: number;
+    feePerDelivery: number;
+    activeCount: number;
+    maxActive: number;
+  }
+
+  /** Доставка глазами клиента. deliveryCode — код, который клиент называет курьеру при получении. */
+  export interface CustomerDelivery {
+    id: number;
+    orderId: number;
+    status: DeliveryStatus;
+    venueName: string;
+    courierName: string | null;
+    courierPhone: string | null;
+    deliveryCode: string | null;
+    createdAt: string;
+    assignedAt: string | null;
+    pickedUpAt: string | null;
+    deliveredAt: string | null;
+  }
+
+  /** Доставка глазами заведения (без кодов). */
+  export interface VenueDelivery {
+    id: number;
+    orderId: number;
+    status: DeliveryStatus;
+    orderStatus: OrderStatus;
+    deliveryAddress: string;
+    courierName: string | null;
+    courierPhone: string | null;
+    pickupAttemptsLeft: number;
+    pickupCodeLocked: boolean;
+    createdAt: string;
+    assignedAt: string | null;
+    pickedUpAt: string | null;
+    deliveredAt: string | null;
+    cancelledAt: string | null;
+  }
+
+  export interface AdminDelivery {
+    id: number;
+    orderId: number;
+    status: DeliveryStatus;
+    orderStatus: OrderStatus;
+    venueName: string;
+    deliveryAddress: string;
+    orderTotal: number;
+    courierFee: number;
+    customerName: string;
+    customerPhone: string;
+    courierName: string | null;
+    courierPhone: string | null;
+    pickupCodeAttempts: number;
+    deliveryCodeAttempts: number;
+    codeLocked: boolean;
+    hasOpenIssue: boolean;
+    adminNote: string | null;
+    createdAt: string;
+    assignedAt: string | null;
+    pickedUpAt: string | null;
+    deliveredAt: string | null;
+    cancelledAt: string | null;
+  }
+
+  export interface DeliveryIssue {
+    id: number;
+    deliveryId: number;
+    orderId: number;
+    deliveryStatus: DeliveryStatus;
+    type: DeliveryIssueType;
+    status: DeliveryIssueStatus;
+    reportedBy: DeliveryParticipant;
+    reporterName: string | null;
+    reporterPhone: string | null;
+    description: string | null;
+    resolution: string | null;
+    resolvedByName: string | null;
+    createdAt: string;
+    resolvedAt: string | null;
+  }
+
+  export type AdminDeliveryAction = 'reassign' | 'cancel' | 'complete' | 'unlock';

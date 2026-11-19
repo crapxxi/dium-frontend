@@ -2,7 +2,8 @@ import { Component, inject, afterNextRender, signal, ChangeDetectorRef } from '@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router'; 
-import { OrderResponse } from '../../models/api.models';
+import { CustomerDelivery, OrderResponse } from '../../models/api.models';
+import { DeliveryService } from '../../services/delivery.service';
 import { environment } from '../../../environments/environment';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -17,7 +18,11 @@ export class OrdersComponent {
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
   
+  private deliveryService = inject(DeliveryService);
+
   orders = signal<OrderResponse[]>([]);
+  /** Доставки заказов по id заказа: курьер и код для получения. */
+  deliveries = signal<Record<number, CustomerDelivery>>({});
   isLoading = signal(true);
   
   isPaymentLoading = signal<{ [orderId: number]: boolean }>({});
@@ -29,6 +34,14 @@ export class OrdersComponent {
   }
 
   loadOrders() {
+    this.deliveryService.getCustomerDeliveries().subscribe({
+      next: (list) => {
+        this.deliveries.set(Object.fromEntries(list.map((d) => [d.orderId, d])));
+        this.cdr.detectChanges();
+      },
+      error: () => this.deliveries.set({})
+    });
+
     this.http.get<OrderResponse[]>(`${environment.apiUrl}/orders/user`).subscribe({
       next: (data) => {
         const sortedData = data.sort((a, b) => 
