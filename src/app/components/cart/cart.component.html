@@ -44,7 +44,7 @@
 
         <div class="bg-white rounded-[40px] p-8 border-2 border-orange-100 shadow-xl space-y-8 mt-10">
           
-          <div class="space-y-4" *ngIf="canDeliver">
+          <div class="space-y-4">
             <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em] ml-2">{{ 'CART.DELIVERY_METHOD' | translate }}</p>
             <div class="flex p-2 bg-gray-50 rounded-[24px] border border-gray-100">
               <button (click)="toggleDelivery(false)" 

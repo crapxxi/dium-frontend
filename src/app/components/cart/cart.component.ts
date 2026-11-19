@@ -29,8 +29,6 @@ export class CartComponent implements OnInit, OnDestroy {
   public orderComment = ''; 
   public paymentFrom = '';
   
-  public canDeliver = false;
-  private venueSub?: Subscription;
   private fulfillmentSub?: Subscription;
 
   ngOnInit() {
@@ -39,25 +37,14 @@ export class CartComponent implements OnInit, OnDestroy {
       this.isDelivery = type === 'DELIVERY';
       this.cdr.detectChanges();
     });
-
-    this.venueSub = this.cartService.currentVenue$.subscribe(venue => {
-      this.canDeliver = venue?.canDeliver ?? false;
-
-      // Заведение не доставляет — остаётся только самовывоз
-      if (venue && !this.canDeliver && this.fulfillment !== 'PICKUP') {
-        this.toggleDelivery(false);
-      }
-      this.cdr.detectChanges();
-    });
   }
 
   ngOnDestroy() {
-    this.venueSub?.unsubscribe();
     this.fulfillmentSub?.unsubscribe();
   }
 
+  /** Доставка не зависит от заведения: заказ из любого места может привезти любой студент. */
   toggleDelivery(status: boolean) {
-    if (status && !this.canDeliver) return;
     this.cartService.setFulfillment(status ? 'DELIVERY' : 'PICKUP');
   }
 

@@ -1,10 +1,10 @@
-import { Component, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Venue, Product, ModifierGroup, Modifier, FulfillmentType } from '../../models/api.models';
+import { Venue, Product, ModifierGroup, Modifier } from '../../models/api.models';
 import { CartService } from '../../services/cart.service';
-import { Subscription, finalize, forkJoin } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -15,7 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
   imports: [CommonModule, RouterLink, TranslateModule],
   templateUrl: './venue-detail.component.html'
 })
-export class VenueDetailComponent implements OnInit, OnDestroy {
+export class VenueDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private http = inject(HttpClient);
   private cdr = inject(ChangeDetectorRef);
@@ -37,56 +37,11 @@ export class VenueDetailComponent implements OnInit, OnDestroy {
 
   simpleCartQuantities: { [productId: number]: number } = {};
 
-  /** Самовывоз или доставка — выбор покупателя для всего заказа (хранится в корзине). */
-  fulfillment: FulfillmentType | null = null;
-  /** Окно «Как получить заказ?» при первом добавлении товара. */
-  showFulfillmentDialog = false;
-  private pendingProduct: Product | null = null;
-  private fulfillmentSub?: Subscription;
-
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       const id = params.get('id');
       if (id) this.loadAllData(id);
     });
-    this.fulfillmentSub = this.cartService.fulfillment$.subscribe(type => {
-      this.fulfillment = type;
-      this.cdr.detectChanges();
-    });
-  }
-
-  ngOnDestroy() {
-    this.fulfillmentSub?.unsubscribe();
-  }
-
-  /** Корзина пуста или из этого заведения — тогда выбор способа получения относится к нему. */
-  get cartIsHere(): boolean {
-    const cartVenueId = this.cartService.cartVenueId;
-    return cartVenueId === null || cartVenueId === this.venue?.id;
-  }
-
-  get canDeliver(): boolean {
-    return !!this.venue?.canDeliver;
-  }
-
-  /** Переключатель над меню и в окне товара. */
-  setFulfillment(type: FulfillmentType) {
-    if (type === 'DELIVERY' && !this.canDeliver) return;
-    this.cartService.setFulfillment(type);
-  }
-
-  /** Выбор в окне «Как получить заказ?»: после него товар добавляется, как и хотел покупатель. */
-  chooseFulfillment(type: FulfillmentType) {
-    this.setFulfillment(type);
-    this.showFulfillmentDialog = false;
-    const product = this.pendingProduct;
-    this.pendingProduct = null;
-    if (product) this.addProduct(product);
-  }
-
-  closeFulfillmentDialog() {
-    this.showFulfillmentDialog = false;
-    this.pendingProduct = null;
   }
 
   loadAllData(id: string) {
@@ -144,21 +99,7 @@ export class VenueDetailComponent implements OnInit, OnDestroy {
 
   handleProductClick(product: Product) {
     if (!product.inStock) return;
-    // Товары из другого заведения: сначала спрашиваем, очистить ли корзину
-    if (!this.cartService.prepareForVenue(product.venueId)) return;
 
-    if (!this.canDeliver) {
-      // Заведение не доставляет — выбирать нечего
-      if (this.cartService.fulfillmentValue !== 'PICKUP') this.cartService.setFulfillment('PICKUP');
-    } else if (!this.cartService.fulfillmentValue) {
-      this.pendingProduct = product;
-      this.showFulfillmentDialog = true;
-      return;
-    }
-    this.addProduct(product);
-  }
-
-  private addProduct(product: Product) {
     if (product.hasModifiers) {
       this.openModifiers(product);
     } else {
