@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID, Injector } from '@angular/core';
 import { BehaviorSubject, map, Observable, throwError, combineLatest } from 'rxjs';
-import { Product, CartItem, OrderRequest, OrderItemRequest, Modifier, Venue, FulfillmentType } from '../models/api.models';
+import { Product, CartItem, OrderRequest, OrderItemRequest, Modifier, Venue, FulfillmentType, PaymentMethod } from '../models/api.models';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import type { AuthService } from './auth.service'; 
@@ -38,14 +38,16 @@ export class CartService {
     map(([venue, isDelivery]) => (isDelivery && venue) ? (venue.deliveryPrice || 0) : 0)
   );
 
-  public totalPrice$ = combineLatest([this.items$, this.deliveryFee$]).pipe(
-    map(([items, fee]) => {
-      const productsTotal = items.reduce((acc, item) => {
-        const modsSum = item.selectedModifiers?.reduce((sum, m) => sum + m.priceDelta, 0) || 0;
-        return acc + (item.price + modsSum) * item.count;
-      }, 0);
-      return productsTotal + fee;
-    })
+  /** Стоимость еды без доставки. */
+  public productsTotal$ = this.items$.pipe(
+    map(items => items.reduce((acc, item) => {
+      const modsSum = item.selectedModifiers?.reduce((sum, m) => sum + m.priceDelta, 0) || 0;
+      return acc + (item.price + modsSum) * item.count;
+    }, 0))
+  );
+
+  public totalPrice$ = combineLatest([this.productsTotal$, this.deliveryFee$]).pipe(
+    map(([productsTotal, fee]) => productsTotal + fee)
   );
 
   constructor() {
@@ -181,13 +183,17 @@ export class CartService {
     }
   }
 
-  checkout(address: string | null, comment: string = '', paymentFrom: string = ''): Observable<any> {
+  checkout(address: string | null, comment: string = '', paymentFrom: string = '',
+           paymentMethod: PaymentMethod = 'KASPI'): Observable<any> {
     const items = this.cartItems.value;
     const fulfillment = this.fulfillment.value;
     if (items.length === 0) return throwError(() => new Error('Empty cart'));
     if (!fulfillment) return throwError(() => new Error('Fulfillment is not chosen'));
 
-    const finalPaymentMethod = paymentFrom || this.authService.currentUserValue?.paymentFrom;
+    // Плательщик Kaspi не нужен, если заказ оплачен баллами
+    const payer = paymentMethod === 'POINTS'
+      ? undefined
+      : (paymentFrom || this.authService.currentUserValue?.paymentFrom);
 
     const orderRequest: OrderRequest = {
       venueId: items[0].venueId,
@@ -200,7 +206,8 @@ export class CartService {
         count: item.count,
         modifierIds: item.selectedModifiers?.map(m => m.id) || []
       })),
-      paymentFrom: finalPaymentMethod
+      paymentFrom: payer,
+      paymentMethod
     };
 
     return this.http.post(`${environment.apiUrl}/orders`, orderRequest);

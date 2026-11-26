@@ -1,0 +1,126 @@
+<main class="min-h-screen bg-[#FFFBF0] py-10 pb-24">
+  <div class="max-w-5xl mx-auto px-4">
+
+    <button routerLink="/profile" class="text-orange-600 font-bold mb-6 flex items-center gap-2 hover:underline">
+      ← {{ 'NAV.BACK' | translate }}
+    </button>
+
+    <h1 class="text-3xl font-black text-orange-900 uppercase italic tracking-tighter leading-none mb-8">{{ 'ADMIN_WALLET.TITLE' | translate }}</h1>
+
+    <p *ngIf="!isAdmin()" class="bg-white rounded-[32px] border-2 border-orange-50 p-10 text-center font-black text-orange-900 uppercase italic">
+      {{ 'ADMIN_DELIVERY.ONLY_ADMIN' | translate }}
+    </p>
+
+    <ng-container *ngIf="isAdmin()">
+      <p *ngIf="errorMessage()" class="mb-4 p-4 bg-red-50 text-red-600 rounded-2xl font-bold text-sm">{{ errorMessage() | translate }}</p>
+      <p *ngIf="infoMessage()" class="mb-4 p-4 bg-green-50 text-green-700 rounded-2xl font-bold text-sm">{{ infoMessage() | translate }}</p>
+
+      <!-- Кошелёк пользователя -->
+      <section class="bg-white rounded-[32px] p-6 border-2 border-orange-50 mb-8 space-y-5">
+        <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">{{ 'ADMIN_WALLET.SEARCH_TITLE' | translate }}</p>
+        <form class="flex flex-col sm:flex-row gap-3" (ngSubmit)="find()">
+          <input name="phone" [(ngModel)]="phone" [placeholder]="'ADMIN_WALLET.PHONE_PLACEHOLDER' | translate"
+                 class="flex-1 px-5 py-3 rounded-2xl bg-gray-50 outline-none focus:ring-2 ring-orange-500 font-bold">
+          <button type="submit" [disabled]="busy() || !phone.trim()"
+                  class="px-6 py-3 bg-orange-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest disabled:bg-gray-300">
+            {{ 'ADMIN_WALLET.FIND' | translate }}
+          </button>
+        </form>
+
+        <ng-container *ngIf="wallet() as w">
+          <div class="flex flex-wrap items-end justify-between gap-4 pt-4 border-t border-orange-50">
+            <div>
+              <p class="font-black text-orange-900 uppercase">{{ w.name }}</p>
+              <p class="text-[11px] font-bold text-gray-400">{{ w.phone }} · {{ w.role }}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-[10px] font-black uppercase text-gray-400 tracking-widest">{{ 'ADMIN_WALLET.BALANCE' | translate }}</p>
+              <p class="text-4xl font-black text-orange-600 italic tracking-tighter">{{ w.balance }}</p>
+            </div>
+          </div>
+          <p *ngIf="w.ledgerSum === w.balance" class="text-[11px] font-bold text-green-600">✓ {{ 'ADMIN_WALLET.LEDGER_OK' | translate }}</p>
+          <p *ngIf="w.ledgerSum !== w.balance" class="text-[11px] font-black text-red-600">
+            ⚠ {{ 'ADMIN_WALLET.LEDGER_BROKEN' | translate:{ sum: w.ledgerSum } }}
+          </p>
+
+          <form class="space-y-3" (ngSubmit)="adjust()">
+            <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">{{ 'ADMIN_WALLET.ADJUST_TITLE' | translate }}</p>
+            <div class="flex flex-col sm:flex-row gap-3">
+              <input name="amount" type="number" [(ngModel)]="amount" [placeholder]="'ADMIN_WALLET.AMOUNT_PLACEHOLDER' | translate"
+                     class="sm:w-48 px-5 py-3 rounded-2xl bg-gray-50 outline-none focus:ring-2 ring-orange-500 font-bold">
+              <input name="reason" [(ngModel)]="reason" maxlength="500" [placeholder]="'ADMIN_WALLET.REASON_PLACEHOLDER' | translate"
+                     class="flex-1 px-5 py-3 rounded-2xl bg-gray-50 outline-none focus:ring-2 ring-orange-500 font-bold">
+              <button type="submit" [disabled]="busy() || !amount || !reason.trim()"
+                      class="px-6 py-3 bg-orange-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest disabled:bg-gray-300">
+                {{ 'ADMIN_WALLET.APPLY' | translate }}
+              </button>
+            </div>
+          </form>
+
+          <div class="space-y-2">
+            <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">{{ 'ADMIN_WALLET.HISTORY' | translate }}</p>
+            <p *ngIf="w.transactions.length === 0" class="text-sm font-bold text-gray-400">{{ 'WALLET.EMPTY' | translate }}</p>
+            <div *ngFor="let t of w.transactions" class="flex items-center justify-between gap-4 px-4 py-3 bg-gray-50 rounded-2xl">
+              <div class="min-w-0">
+                <p class="text-[11px] font-black uppercase text-orange-900">{{ 'WALLET.TYPE_' + t.type | translate }}</p>
+                <p class="text-[11px] font-bold text-gray-400 truncate" [title]="t.note">{{ t.note }}</p>
+              </div>
+              <div class="text-right shrink-0">
+                <p class="font-black italic" [class.text-green-600]="t.amount > 0" [class.text-red-500]="t.amount < 0">
+                  {{ t.amount > 0 ? '+' : '' }}{{ t.amount }}
+                </p>
+                <p class="text-[10px] font-bold text-gray-300">{{ t.createdAt | date:'dd.MM.yy HH:mm' }}</p>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </section>
+
+      <!-- Сверка -->
+      <section class="bg-white rounded-[32px] p-6 border-2 border-orange-50 space-y-4">
+        <p class="text-[10px] font-black uppercase text-gray-400 tracking-[0.2em]">{{ 'ADMIN_WALLET.SETTLEMENT_TITLE' | translate }}</p>
+        <p class="text-[11px] font-bold text-gray-500">{{ 'ADMIN_WALLET.SETTLEMENT_HINT' | translate }}</p>
+        <form class="flex flex-wrap items-end gap-3" (ngSubmit)="loadSettlements()">
+          <label class="text-[10px] font-black uppercase text-gray-400">{{ 'ADMIN_WALLET.FROM' | translate }}
+            <input name="from" type="date" [(ngModel)]="from" class="block mt-1 px-4 py-2 rounded-xl bg-gray-50 font-bold text-orange-900">
+          </label>
+          <label class="text-[10px] font-black uppercase text-gray-400">{{ 'ADMIN_WALLET.TO' | translate }}
+            <input name="to" type="date" [(ngModel)]="to" class="block mt-1 px-4 py-2 rounded-xl bg-gray-50 font-bold text-orange-900">
+          </label>
+          <button type="submit" class="px-6 py-3 bg-orange-600 text-white rounded-2xl font-black uppercase text-[11px] tracking-widest">
+            {{ 'ADMIN_WALLET.SHOW' | translate }}
+          </button>
+        </form>
+
+        <ng-container *ngIf="report() as r">
+          <p *ngIf="r.venues.length === 0" class="text-sm font-bold text-gray-400">{{ 'ADMIN_WALLET.NO_SETTLEMENTS' | translate }}</p>
+          <div *ngIf="r.venues.length > 0" class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="text-[10px] font-black uppercase text-gray-400 tracking-widest text-left">
+                  <th class="py-2 pr-4">{{ 'ADMIN_WALLET.VENUE' | translate }}</th>
+                  <th class="py-2 pr-4 text-right">{{ 'ADMIN_WALLET.FEES_OWED' | translate }}</th>
+                  <th class="py-2 pr-4 text-right">{{ 'ADMIN_WALLET.POINTS_ORDERS' | translate }}</th>
+                  <th class="py-2 pr-4 text-right">{{ 'ADMIN_WALLET.POINTS_VALUE' | translate }}</th>
+                  <th class="py-2 text-right">{{ 'ADMIN_WALLET.NET' | translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let v of r.venues" class="border-t border-orange-50 font-bold text-orange-900">
+                  <td class="py-3 pr-4">{{ v.venueName }}</td>
+                  <td class="py-3 pr-4 text-right">{{ v.deliveryFeesOwed }} ₸</td>
+                  <td class="py-3 pr-4 text-right">{{ v.pointsOrdersCount }}</td>
+                  <td class="py-3 pr-4 text-right">{{ v.pointsOrdersValue }} ₸</td>
+                  <td class="py-3 text-right font-black">
+                    <span *ngIf="v.netToVenue >= 0" class="text-orange-600">{{ 'ADMIN_WALLET.NET_TO_VENUE' | translate }} {{ v.netToVenue }} ₸</span>
+                    <span *ngIf="v.netToVenue < 0" class="text-green-700">{{ 'ADMIN_WALLET.NET_TO_PLATFORM' | translate }} {{ -v.netToVenue }} ₸</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </section>
+    </ng-container>
+  </div>
+</main>

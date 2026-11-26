@@ -55,7 +55,10 @@ export interface User {
     address: string;
     comment: string;
     deliveryFee: number;
-    paymentFrom: string;
+    paymentFrom: string | null;
+    paymentMethod: PaymentMethod;
+    /** Сколько баллов списано; null — оплата Kaspi. */
+    pointsSpent: number | null;
   }
 
   export interface RegisterRequest {
@@ -80,6 +83,58 @@ export interface User {
     comment: string;
     paymentFrom?: string;
     fulfillment: FulfillmentType;
+    paymentMethod: PaymentMethod;
+  }
+
+  /** Kaspi — перевод заведению; POINTS — баллами из кошелька (цена с наценкой). */
+  export type PaymentMethod = 'KASPI' | 'POINTS';
+
+  export type WalletTransactionType = 'DELIVERY_EARNING' | 'ORDER_PAYMENT' | 'ORDER_REFUND' | 'ADMIN_ADJUSTMENT';
+
+  export interface WalletTransaction {
+    id: number;
+    /** Плюс — начисление, минус — списание. */
+    amount: number;
+    balanceAfter: number;
+    type: WalletTransactionType;
+    orderId: number | null;
+    note: string | null;
+    createdAt: string;
+  }
+
+  export interface Wallet {
+    balance: number;
+    /** На сколько процентов цена в баллах выше цены в тенге. */
+    markupPercent: number;
+    pointsPerDelivery: number;
+    transactions: WalletTransaction[];
+  }
+
+  export interface AdminWallet {
+    userId: number;
+    name: string;
+    phone: string;
+    role: string;
+    balance: number;
+    /** Сумма журнала; должна совпадать с балансом. */
+    ledgerSum: number;
+    transactions: WalletTransaction[];
+  }
+
+  export interface VenueSettlement {
+    venueId: number;
+    venueName: string;
+    deliveryFeesOwed: number;
+    pointsOrdersCount: number;
+    pointsOrdersValue: number;
+    /** Плюс — платформа платит заведению, минус — заведение платформе. */
+    netToVenue: number;
+  }
+
+  export interface SettlementReport {
+    from: string;
+    to: string;
+    venues: VenueSettlement[];
   }
 
   export interface LoginRequest {

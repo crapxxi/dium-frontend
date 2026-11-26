@@ -106,11 +106,16 @@
           </div>
           <div class="text-right">
             <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-0.5">{{ 'CART.TOTAL' | translate }}</p>
-            <p class="text-3xl font-black text-orange-600 italic tracking-tighter">{{ order.totalSum }} ₸</p>
+            <p *ngIf="order.paymentMethod !== 'POINTS'" class="text-3xl font-black text-orange-600 italic tracking-tighter">{{ order.totalSum }} ₸</p>
+            <ng-container *ngIf="order.paymentMethod === 'POINTS'">
+              <p class="text-3xl font-black text-orange-600 italic tracking-tighter">{{ order.pointsSpent }} {{ 'WALLET.PTS' | translate }}</p>
+              <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest">⭐ {{ 'WALLET.PAID_WITH_POINTS' | translate }}</p>
+            </ng-container>
           </div>
         </div>
 
-        <div *ngIf="order.status === 'PENDING'" class="bg-white border-t border-orange-50 pt-4">
+        <!-- Заказ за баллы уже оплачен: переводить по Kaspi нечего -->
+        <div *ngIf="order.status === 'PENDING' && order.paymentMethod !== 'POINTS'" class="bg-white border-t border-orange-50 pt-4">
 
           <button (click)="makeOrder(order.id)" 
                   [disabled]="isPaymentLoading()[order.id]"
