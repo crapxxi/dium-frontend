@@ -30,7 +30,7 @@
       <div *ngIf="isStudent() && summary() as s" class="grid grid-cols-3 gap-3 mb-6">
         <div class="bg-orange-600 rounded-[28px] p-5 text-white shadow-lg shadow-orange-200">
           <p class="text-[9px] font-black uppercase tracking-widest opacity-80">{{ 'DELIVERY.EARNED' | translate }}</p>
-          <p class="text-2xl font-black italic tracking-tighter mt-1">{{ s.totalEarned }} ₸</p>
+          <p class="text-2xl font-black italic tracking-tighter mt-1">{{ s.totalEarned }} {{ 'WALLET.PTS' | translate }}</p>
         </div>
         <div class="bg-white rounded-[28px] p-5 border-2 border-orange-50">
           <p class="text-[9px] font-black uppercase tracking-widest text-gray-400">{{ 'DELIVERY.DELIVERED_COUNT' | translate }}</p>
@@ -93,7 +93,7 @@
                 <p class="font-black text-orange-900 break-words">{{ offer.deliveryAddress }}</p>
               </div>
               <div class="text-right shrink-0">
-                <p class="text-3xl font-black text-green-600 italic tracking-tighter">+{{ offer.courierFee }} ₸</p>
+                <p class="text-3xl font-black text-green-600 italic tracking-tighter">+{{ offer.courierFee }} {{ 'WALLET.PTS' | translate }}</p>
                 <p class="text-[10px] font-bold text-gray-400 uppercase mt-1">{{ 'DELIVERY.ITEMS' | translate:{ count: offer.itemsCount } }}</p>
                 <span class="inline-block mt-2 px-3 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest"
                       [ngClass]="offer.orderStatus === 'READY' ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'">
@@ -127,7 +127,7 @@
                     {{ 'DELIVERY.STATUS_' + d.status | translate }}
                   </span>
                 </div>
-                <p class="text-2xl font-black text-green-600 italic tracking-tighter">+{{ d.courierFee }} ₸</p>
+                <p class="text-2xl font-black text-green-600 italic tracking-tighter">+{{ d.courierFee }} {{ 'WALLET.PTS' | translate }}</p>
               </div>
 
               <!-- Шаг 1: в заведении — показать код курьера -->
@@ -218,7 +218,7 @@
                 <p class="font-black text-orange-900 text-sm">#{{ d.orderId }} · {{ d.venueName }}</p>
                 <p class="text-[10px] font-bold text-gray-400">{{ (d.deliveredAt || d.assignedAt) | date:'dd.MM HH:mm' }}</p>
               </div>
-              <span *ngIf="d.status === 'DELIVERED'" class="font-black text-green-600 italic">+{{ d.courierFee }} ₸</span>
+              <span *ngIf="d.status === 'DELIVERED'" class="font-black text-green-600 italic">+{{ d.courierFee }} {{ 'WALLET.PTS' | translate }}</span>
               <span *ngIf="d.status === 'CANCELLED'" class="text-[10px] font-black uppercase text-red-400">{{ 'DELIVERY.STATUS_CANCELLED' | translate }}</span>
             </div>
           </div>

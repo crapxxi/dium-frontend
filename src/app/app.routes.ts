@@ -21,6 +21,8 @@ import { AboutComponent } from './components/about/about.component';
 import { TwoFactorVerifyComponent } from './components/two-factor-verify/two-factor-verify.component';
 import { DeliveryComponent } from './components/delivery/delivery.component';
 import { AdminDeliveriesComponent } from './components/admin/admin-deliveries.component';
+import { AdminWalletsComponent } from './components/admin/admin-wallets.component';
+import { WalletComponent } from './components/wallet/wallet.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent,canActivate: [guestGuard] },
@@ -35,6 +37,8 @@ export const routes: Routes = [
   { path: 'admin', component:AdminRegisterOwnerComponent},
   { path: 'admin/deliveries', component: AdminDeliveriesComponent },
   { path: 'delivery', component: DeliveryComponent },
+  { path: 'wallet', component: WalletComponent },
+  { path: 'admin/wallets', component: AdminWalletsComponent },
   { path: 'create-venue', component:CreateVenueComponent},
   { path: 'manage-venue/:id', component:ManageVenueComponent},
   { path: 'support', component:SupportComponent},

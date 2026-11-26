@@ -1,12 +1,13 @@
-import { Component, inject, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, ChangeDetectorRef, OnInit, OnDestroy, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms'; 
 import { CartService } from '../../services/cart.service';
 import { AuthService } from '../../services/auth.service';
-import { Subscription } from 'rxjs';
+import { Subscription, combineLatest } from 'rxjs';
 import { TranslateModule } from '@ngx-translate/core';
-import { FulfillmentType } from '../../models/api.models';
+import { FulfillmentType, PaymentMethod, Wallet } from '../../models/api.models';
+import { WalletService, pointsPrice } from '../../services/wallet.service';
 
 
 @Component({
@@ -20,6 +21,8 @@ export class CartComponent implements OnInit, OnDestroy {
   public authService = inject(AuthService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
+  private walletService = inject(WalletService);
+  private platformId = inject(PLATFORM_ID);
 
   public isSubmitting = false;
   /** Выбор покупателя: самовывоз или доставка (null — ещё не выбрал). Общий с карточкой товара. */
@@ -32,6 +35,19 @@ export class CartComponent implements OnInit, OnDestroy {
   public canDeliver = false;
   private venueSub?: Subscription;
   private fulfillmentSub?: Subscription;
+  private totalsSub?: Subscription;
+
+  /** Kaspi или баллы. Баллами — дороже на наценку, зато без перевода. */
+  public paymentMethod: PaymentMethod = 'KASPI';
+  /** Кошелёк покупателя; null — ещё не загружен или не вошёл. */
+  public wallet: Wallet | null = null;
+  /** Цена заказа в баллах (с наценкой) и в тенге — для подсказки. */
+  public pointsTotal = 0;
+  public tengeTotal = 0;
+
+  get notEnoughPoints(): number {
+    return this.wallet ? Math.max(0, this.pointsTotal - this.wallet.balance) : 0;
+  }
 
   ngOnInit() {
     this.fulfillmentSub = this.cartService.fulfillment$.subscribe(type => {
@@ -49,11 +65,42 @@ export class CartComponent implements OnInit, OnDestroy {
       }
       this.cdr.detectChanges();
     });
+
+    this.totalsSub = combineLatest([this.cartService.productsTotal$, this.cartService.deliveryFee$]).subscribe(
+      ([products, fee]) => {
+        this.tengeTotal = products + fee;
+        this.pointsTotal = pointsPrice(products, fee, this.wallet?.markupPercent ?? 20);
+        this.cdr.detectChanges();
+      });
+
+    // Баланс нужен только в браузере и только вошедшему
+    if (isPlatformBrowser(this.platformId) && this.authService.isLoggedIn()) {
+      this.walletService.getMyWallet().subscribe({
+        next: wallet => {
+          this.wallet = wallet;
+          this.recalcPoints();
+        },
+        error: () => this.wallet = null
+      });
+    }
   }
 
   ngOnDestroy() {
     this.venueSub?.unsubscribe();
     this.fulfillmentSub?.unsubscribe();
+    this.totalsSub?.unsubscribe();
+  }
+
+  setPaymentMethod(method: PaymentMethod) {
+    if (method === 'POINTS' && !this.wallet) return;
+    this.paymentMethod = method;
+  }
+
+  private recalcPoints() {
+    combineLatest([this.cartService.productsTotal$, this.cartService.deliveryFee$]).subscribe(([products, fee]) => {
+      this.pointsTotal = pointsPrice(products, fee, this.wallet?.markupPercent ?? 20);
+      this.cdr.detectChanges();
+    }).unsubscribe();
   }
 
   toggleDelivery(status: boolean) {
@@ -72,7 +119,13 @@ export class CartComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if(!this.paymentFrom.trim()) {
+    const payWithPoints = this.paymentMethod === 'POINTS';
+    if (payWithPoints && this.notEnoughPoints > 0) {
+      alert(`Не хватает ${this.notEnoughPoints} баллов`);
+      return;
+    }
+
+    if(!payWithPoints && !this.paymentFrom.trim()) {
       alert('Пожалуйста, впишите от кого поступит оплата!')
       return;
     }
@@ -87,7 +140,7 @@ export class CartComponent implements OnInit, OnDestroy {
     const finalAddress = this.isDelivery ? this.address.trim() : null;
     const comment = this.orderComment.trim();
   
-    this.cartService.checkout(finalAddress, comment, this.paymentFrom).subscribe({
+    this.cartService.checkout(finalAddress, comment, this.paymentFrom, this.paymentMethod).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.cartService.clearCart(); 

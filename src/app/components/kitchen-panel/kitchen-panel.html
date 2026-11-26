@@ -95,8 +95,11 @@
                 <div class="flex flex-col gap-4">
                   <div class="flex-1">
                     <p class="text-[14px] font-black uppercase text-red-600 tracking-[0.3em] mb-1.5 opacity-90">{{ 'KITCHEN.CLIENT_PAYMENT' | translate }}</p>
-                    <p class="text-lg font-black text-red-950 leading-tight italic uppercase">
+                    <p *ngIf="order.paymentMethod !== 'POINTS'" class="text-lg font-black text-red-950 leading-tight italic uppercase">
                       {{ order.paymentFrom }}
+                    </p>
+                    <p *ngIf="order.paymentMethod === 'POINTS'" class="text-lg font-black text-green-700 leading-tight italic uppercase">
+                      ⭐ {{ 'WALLET.KITCHEN_PAID_POINTS' | translate }}
                     </p>
                   </div>
                 
