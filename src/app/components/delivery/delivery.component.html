@@ -137,6 +137,9 @@
                 <p class="text-[10px] font-bold text-orange-200 mt-2">
                   {{ d.orderStatus === 'READY' ? ('DELIVERY.ORDER_READY_HINT' | translate) : ('DELIVERY.ORDER_COOKING_HINT' | translate) }}
                 </p>
+                <p *ngIf="d.deadlineAt" class="text-[11px] font-black text-yellow-300 mt-2">
+                  ⏱ {{ 'DELIVERY.PICKUP_DEADLINE' | translate:{ time: (d.deadlineAt | date:'HH:mm') } }}
+                </p>
               </div>
 
               <div class="grid md:grid-cols-2 gap-3 text-[11px]">
@@ -166,6 +169,9 @@
 
               <!-- Шаг 2: у клиента — ввести код клиента -->
               <div *ngIf="d.status === 'PICKED_UP'" class="mt-5 border-t-2 border-dashed border-green-100 pt-5">
+                <p *ngIf="d.deadlineAt" class="text-[11px] font-black text-orange-600 mb-3">
+                  ⏱ {{ 'DELIVERY.DELIVER_DEADLINE' | translate:{ time: (d.deadlineAt | date:'HH:mm') } }}
+                </p>
                 <ng-container *ngIf="!d.deliveryCodeLocked; else codeLocked">
                   <label class="block text-[10px] font-black text-green-700 uppercase tracking-widest mb-2" [attr.for]="'code-' + d.id">
                     {{ 'DELIVERY.ENTER_CUSTOMER_CODE' | translate }}
@@ -259,6 +265,10 @@
               <p *ngIf="d.courierName" class="mt-4 text-[11px] font-bold text-gray-500">
                 🛵 {{ 'DELIVERY.COURIER' | translate }}: <span class="font-black text-orange-900">{{ d.courierName }}</span>
                 <a *ngIf="d.courierPhone" [href]="phoneHref(d.courierPhone)" class="text-blue-600 underline ml-1">{{ d.courierPhone }}</a>
+              </p>
+
+              <p *ngIf="d.status === 'SEARCHING_COURIER' && d.deadlineAt" class="mt-4 text-[11px] font-bold text-orange-600">
+                ⏱ {{ 'DELIVERY.SEARCH_DEADLINE' | translate:{ time: (d.deadlineAt | date:'HH:mm') } }}
               </p>
 
               <div *ngIf="d.deliveryCode" class="mt-5 bg-orange-900 rounded-[24px] p-5 text-center">
