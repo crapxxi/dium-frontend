@@ -279,6 +279,8 @@ export interface User {
     assignedAt: string | null;
     pickedUpAt: string | null;
     deliveredAt: string | null;
+    /** Срок текущего этапа; null — срока нет. */
+    deadlineAt: string | null;
   }
 
   export interface CourierSummary {
@@ -302,6 +304,8 @@ export interface User {
     assignedAt: string | null;
     pickedUpAt: string | null;
     deliveredAt: string | null;
+    /** Срок текущего этапа; null — срока нет. */
+    deadlineAt: string | null;
   }
 
   /** Доставка глазами заведения (без кодов). */
@@ -345,6 +349,8 @@ export interface User {
     pickedUpAt: string | null;
     deliveredAt: string | null;
     cancelledAt: string | null;
+    /** Срок текущего этапа; null — срока нет. */
+    deadlineAt: string | null;
   }
 
   export interface DeliveryIssue {

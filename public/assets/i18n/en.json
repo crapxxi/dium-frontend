@@ -490,6 +490,9 @@
   "DELIVERY": {
     "TITLE": "Delivery",
     "SUBTITLE": "Deliver orders to fellow students — {{fee}} points each",
+    "PICKUP_DEADLINE": "Pick it up by {{time}} — otherwise the order goes to another courier",
+    "DELIVER_DEADLINE": "Hand it to the customer by {{time}}",
+    "SEARCH_DEADLINE": "If no courier takes it by {{time}}, delivery is cancelled and you can pick the order up yourself",
     "REFRESH": "Refresh",
     "LOGIN_REQUIRED": "Log in to take orders and track deliveries",
     "EARNED": "Earned",
@@ -565,6 +568,7 @@
   },
   "ADMIN_DELIVERY": {
     "TITLE": "Deliveries",
+    "DEADLINE": "Stage deadline",
     "SUBTITLE": "Delivery monitoring and problem resolution",
     "ONLY_ADMIN": "This section is for administrators only",
     "TAB_ISSUES": "Problems",
